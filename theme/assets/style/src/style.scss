@@ -1,0 +1,30 @@
+/*
+Theme Name:     SharedExpenses - 2024.10.15
+Author:         H9 Design
+Version:        1.0
+*/
+
+// @use "sass:math";
+// @use "base/vars" as *;
+// @use "_/cache" as *;
+// @use "_/utils" as *;
+// @use "_/html" as *;
+// @use "base/mixins" as *;
+// @use "base/typography" as *;
+// @import "base/classes";
+// @import "base/html";
+// @import "site/+";
+// @import "items/+";
+// @import "pages/+";
+
+@import "base/vars";
+@import "_/cache";
+@import "_/utils";
+@import "_/html";
+@import "base/mixins";
+@import "base/typography";
+@import "base/classes";
+@import "base/html";
+@import "site/+";
+@import "items/+";
+@import "pages/+";

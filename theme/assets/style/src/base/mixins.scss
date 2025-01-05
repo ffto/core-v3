@@ -1,0 +1,26 @@
+////
+/// Mixins
+/// List of functions helpers
+////
+
+@mixin add-borders ($corners:all, $style:solid){
+	@if ($style == ':dash'){
+		@include background-border($corners, (width:1px, dash:(7 3)), $color-dark);		
+	}@else{
+		$border : 1px $style $color-dark;
+
+		@if ($corners == all or $corners == true){
+			border:$border;
+		}@else{
+			@if (is-in(top, $corners))		{ border-top:$border; }
+			@if (is-in(right, $corners))	{ border-right:$border; }
+			@if (is-in(bottom, $corners))	{ border-bottom:$border; }
+			@if (is-in(left, $corners))		{ border-left:$border; }
+		}
+	}
+}
+
+@mixin add-shadow ($corners:true){
+	@include add-borders($corners);
+	box-shadow: -2px 5px 8px 0px #000;
+}

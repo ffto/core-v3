@@ -1,0 +1,14 @@
+.site-head{
+    @include screen-padding('0.1em $');  
+    
+    &{
+        display:flex;
+        justify-content:space-between;
+        text-transform:uppercase;  
+        margin-bottom:2em;
+    }
+
+    &__left a{
+        @extend .lnk, .is-inverse;
+    }
+}

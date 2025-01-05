@@ -1,0 +1,64 @@
+.page-home{
+	table{
+		table-layout:fixed;
+	}
+	tr{
+		@include add-borders(bottom);
+	}
+
+	// head --------------------------------------------------------------------
+	thead{
+		text-align:left;
+	}
+	th{
+		padding-top:0;
+		padding-bottom:0;
+		vertical-align:bottom;
+		@include bold(false);
+	}
+
+	fieldset{
+		display:inline-block;
+		margin-bottom:1px;
+	}
+	
+	&__nav{
+		display:flex;
+		justify-content:flex-end;
+		align-items:center;
+		text-align:right;
+		white-space:nowrap;
+		gap:0.8em;
+
+		a{
+			display:inline-block;
+			@include area-expand;
+		}
+		.icn{
+			vertical-align:middle;
+		}
+	}
+
+	// body --------------------------------------------------------------------
+	tbody{
+		[col="date"]{
+			white-space:nowrap;
+		}
+		[col="nav"]{
+			white-space:nowrap;		
+		}
+	}
+
+	tr[href]{
+		cursor: pointer;
+
+		@include is-hover{
+			@include add-shadow(top bottom);
+		}
+	}
+	td{
+		line-height:1;
+		padding:0 2.25em 0 0;
+	}
+
+}

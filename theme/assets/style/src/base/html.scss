@@ -1,0 +1,52 @@
+@import "../base/mixins";
+@import "../base/typography";
+
+// general ---------------------------------------------------------------------
+body{
+    --scrollbar-radius    : 0px;
+    --scrollbar-padding   : 0px;
+    --scrollbar-color     : white;
+    --scrollbar-border    : black;
+    --scrollbar-size      : 6px;
+    @include text;
+}
+
+// text ------------------------------------------------------------------------
+@include headings{
+}
+
+h1{
+    @include text-h1;
+}
+h2{
+    @include text-h2;
+}
+h3{
+    @include text-h3;
+}
+h4{
+    @include text-h4;
+}
+h5{
+    @include text-h5;
+}
+
+// link ------------------------------------------------------------------------
+a:where([href]){
+    @extend .lnk;
+}
+
+// list ------------------------------------------------------------------------
+ul:where(:not([unstyled])){
+    &{
+        margin-left:1em;
+    }
+}
+ol:where(:not([unstyled])){
+    margin-left:2em;
+}
+
+// form/inputs -----------------------------------------------------------------
+button:not([unstyled]){
+    @extend .btn;
+}

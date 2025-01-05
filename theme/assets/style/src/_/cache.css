@@ -1,0 +1,692 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  --viewport-width: 100vw;
+  --viewport-height: 100vh;
+  --viewport-min-height: 100vh;
+  --viewport-min-height: 100svh;
+  --viewport-max-height: 100vh;
+  --viewport-max-height: 100lvh;
+  --viewport-offset-x: 0px;
+  --viewport-offset-y: 0px;
+  --screen-width: 100vw;
+  --screen-height: 100vh;
+  --screen-scrollbar: 0px;
+}
+html {
+  --breakpoint-phone: 640px;
+}
+@media screen and (max-width: 640px) {
+  html {
+    --breakpoint: phone;
+  }
+}
+html {
+  --breakpoint-tablet: 768px;
+}
+@media screen and (min-width: 641px) and (max-width: 768px) {
+  html {
+    --breakpoint: tablet;
+  }
+}
+html {
+  --breakpoint-laptop: 1024px;
+}
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  html {
+    --breakpoint: laptop;
+  }
+}
+html {
+  --breakpoint-desktop: 1440px;
+}
+@media screen and (min-width: 1025px) {
+  html {
+    --breakpoint: desktop;
+  }
+}
+html {
+  --column-count: 12;
+  --column-gap: 20px;
+  --column-padding: 0.2rem;
+  --column-width: 100%;
+}
+@media screen and (max-width: 640px) {
+  html {
+    --column-count: 6;
+    --column-gap: 12px;
+    --column-padding: 15px;
+  }
+}
+html {
+  --screen-column-width: calc(var(--inner-width) - (var(--column-padding) * 2));
+  --screen-column-gap: var(--column-gap);
+}
+html {
+  font-family: Monument, sans-serif;
+  font-size: 15px;
+  line-height: 1.1333333333;
+}
+html {
+  --lh: 1.1333333333em;
+}
+html {
+  font-weight: normal;
+}
+html {
+  margin: 0;
+  overflow-anchor: none;
+  position: relative;
+  --margin-top: var(--lh);
+  --margin-bottom: var(--lh);
+  --first-margin-top: 0;
+  --last-margin-bottom: 0;
+}
+
+body {
+  margin: 0;
+  color: #181818;
+  background: #FFFFFF;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:where(h1, h2, h3, h4, h5, h6, p, ul, ol, figure, canvas, iframe, table, fieldset, summary, form) {
+  margin-top: var(--margin-top, 0);
+  margin-bottom: var(--margin-bottom);
+  overflow-wrap: break-word;
+}
+:where(:where(h1, h2, h3, h4, h5, h6, p, ul, ol, figure, canvas, iframe, table, fieldset, summary, form):first-child) {
+  margin-top: var(--first-margin-top, 0);
+}
+:where(:where(h1, h2, h3, h4, h5, h6, p, ul, ol, figure, canvas, iframe, table, fieldset, summary, form):last-child) {
+  margin-bottom: var(--last-margin-bottom, var(--margin-bottom));
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: inherit;
+}
+
+h1 {
+  font-size: 2.6666666667rem;
+}
+
+h2 {
+  font-size: 1.6rem;
+}
+
+h3 {
+  font-size: 1.3333333333rem;
+}
+
+h4 {
+  font-size: 1.2rem;
+}
+
+h5 {
+  font-size: 0.9333333333rem;
+}
+
+h6 {
+  font-size: 0.8rem;
+}
+
+small {
+  font-size: 0.8em;
+}
+
+strong, b {
+  font-weight: 600;
+}
+
+em, i {
+  font-style: italic;
+}
+
+sup, sub {
+  font-size: 0.8em;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.45em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+code, kbd, samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+@media (hover: hover) {
+  a:hover {
+    text-decoration: none;
+  }
+}
+:where(a) {
+  outline: none;
+}
+:where(a):focus-visible {
+  outline-color: var(--focus-color, #007BFF);
+  outline-style: var(--focus-style, solid);
+  outline-width: var(--focus-size, );
+  outline-offset: var(--focus-offset, );
+}
+:where(a):focus-visible *:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+:where(ul, ol) {
+  margin: 0px 1.2em 0px 1.2em;
+}
+:where(ul, ol) {
+  padding: 0px;
+}
+:where(ul, ol) {
+  list-style-position: outside;
+}
+:where(ul, ol) :where(ul, ol) {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+ul.is-clear, ul:where([unstyled]), ol.is-clear, ol:where([unstyled]) {
+  list-style: none;
+}
+ul.is-clear, ul:where([unstyled]), ol.is-clear, ol:where([unstyled]) {
+  margin: 0px;
+}
+ul.is-clear, ul:where([unstyled]), ol.is-clear, ol:where([unstyled]) {
+  padding: 0px;
+}
+ul.is-inline, ol.is-inline {
+  list-style: none;
+}
+ul.is-inline, ol.is-inline {
+  margin: 0px;
+}
+ul.is-inline, ol.is-inline {
+  padding: 0px;
+}
+ul.is-inline, ol.is-inline {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--gap, 0.5em);
+}
+ul {
+  list-style-type: disc;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+ul:where([unstyled]), ol:where([unstyled]) {
+  list-style: none;
+}
+ul:where([unstyled]), ol:where([unstyled]) {
+  margin: 0px;
+}
+ul:where([unstyled]), ol:where([unstyled]) {
+  padding: 0px;
+}
+menu {
+  list-style: none;
+}
+menu {
+  margin: 0px;
+}
+menu {
+  padding: 0px;
+}
+img {
+  border: 0;
+  height: auto;
+  vertical-align: top;
+}
+button img {
+  vertical-align: middle;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+img[unstyled], picture[unstyled], video[unstyled], canvas[unstyled], svg[unstyled] {
+  max-width: none;
+}
+
+svg, canvas, iframe {
+  vertical-align: top;
+}
+
+table {
+  border-collapse: collapse;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+}
+
+:where(fieldset) {
+  border: none;
+  padding: 0;
+  min-width: 0;
+}
+:where(fieldset) :where(input), :where(fieldset) textarea, :where(fieldset) select {
+  width: 100%;
+}
+:where(fieldset) :where([type=checkbox], [type=radio]) {
+  width: auto;
+}
+
+label, legend {
+  display: block;
+  font: inherit;
+}
+
+label[for], label:has(input, select, textarea) {
+  cursor: pointer;
+}
+
+button, input, optgroup, select, textarea, [contenteditable] {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+button, [href], input, select, textarea, [contenteditable], :where([tabindex]:not([tabindex="-1"])) {
+  outline: none;
+}
+button:focus-visible, [href]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [contenteditable]:focus-visible, :where([tabindex]:not([tabindex="-1"])):focus-visible {
+  outline-color: var(--focus-color, #007BFF);
+  outline-style: var(--focus-style, solid);
+  outline-width: var(--focus-size, );
+  outline-offset: var(--focus-offset, );
+}
+button:focus-visible *:focus, [href]:focus-visible *:focus, input:focus-visible *:focus, select:focus-visible *:focus, textarea:focus-visible *:focus, [contenteditable]:focus-visible *:focus, :where([tabindex]:not([tabindex="-1"])):focus-visible *:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+button, [type=checkbox], [type=radio], [type=button], [type=reset], [type=submit], [role=button], select {
+  cursor: pointer;
+}
+
+button[unstyled] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+:where(button[unstyled]) {
+  font-weight: inherit;
+  color: inherit;
+  border: none;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  text-align: inherit;
+}
+
+textarea,
+:where(input:not([type=radio], [type=checkbox])),
+:where([contenteditable]:not([contenteditable=false])) {
+  -webkit-appearance: none;
+}
+
+textarea {
+  resize: none;
+}
+
+.input-wrap:focus-within {
+  outline-color: var(--focus-color, #007BFF);
+  outline-style: var(--focus-style, solid);
+  outline-width: var(--focus-size, );
+  outline-offset: var(--focus-offset, );
+}
+.input-wrap:focus-within *:focus {
+  outline: none;
+  box-shadow: none;
+}
+.input-wrap {
+  display: inline-flex;
+  gap: 0.5em;
+}
+.input-wrap > :where(*) {
+  font: inherit;
+  border: none;
+  padding: 0;
+}
+
+hr {
+  background-color: #181818;
+  height: 1px;
+  border: none;
+}
+
+summary {
+  cursor: pointer;
+}
+summary[unstyled] {
+  display: block;
+  -webkit-appearance: none;
+}
+summary[unstyled]::-webkit-details-marker {
+  display: none;
+}
+
+details[unstyled] summary {
+  display: block;
+  -webkit-appearance: none;
+}
+
+dialog {
+  padding: 0;
+  border: none;
+}
+dialog:not([open]) {
+  display: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+[hidden=opacity], [hidden=visibility] {
+  display: revert !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+[hidden=size], [invisible] {
+  display: revert !important;
+  height: 0 !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  pointer-events: none !important;
+}
+
+[invisible] {
+  position: absolute !important;
+}
+
+[pointer] {
+  cursor: pointer;
+}
+
+[disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+::-moz-selection {
+  color: var(--text-selection-fg);
+  background: var(--text-selection-bg, #b3d4fc);
+  text-shadow: none;
+}
+
+::selection {
+  color: var(--text-selection-fg);
+  background: var(--text-selection-bg, #b3d4fc);
+  text-shadow: none;
+}
+
+::placeholder {
+  font: inherit;
+  color: rgba(0, 0, 0, 0.4);
+  opacity: 0.8;
+}
+
+[placeholder]:empty::before {
+  content: attr(placeholder);
+  pointer-events: none;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[debug=columns] {
+  opacity: 0.5;
+  pointer-events: none;
+  background: no-repeat var(--bg-column-padding, var(--column-padding)) 0/calc(100% - var(--bg-column-padding, var(--column-padding)) * 2 + var(--bg-column-gap, var(--column-gap))) 100% repeating-linear-gradient(to right, var(--bg-column-color, rgba(255, 0, 0, 0.2)), var(--bg-column-color, rgba(255, 0, 0, 0.2)) calc(100% / var(--bg-column-count, var(--column-count)) - var(--bg-column-gap, var(--column-gap)) - 1px), transparent calc(100% / var(--bg-column-count, var(--column-count)) - var(--bg-column-gap, var(--column-gap))), transparent calc(100% / var(--bg-column-count, var(--column-count)))), repeat-y 0 0/100% var(--bg-column-baseline, var(--lh)) linear-gradient(0deg, transparent 95%, rgba(56, 255, 255, 0.9) 100%);
+}
+[debug=columns] {
+  position: fixed;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+[debug=columns] {
+  z-index: 999999;
+}
+
+[debug=breakpoints] {
+  background: linear-gradient(to right, rgba(255, 0, 0, 0.2) 10px, transparent 10px, transparent) 355px top, linear-gradient(to right, red 1px, transparent 1px, transparent) 360px top, linear-gradient(to right, rgba(128, 128, 128, 0.2) 10px, transparent 10px, transparent) 635px top, linear-gradient(to right, gray 1px, transparent 1px, transparent) 640px top, linear-gradient(to right, rgba(0, 0, 0, 0.2) 10px, transparent 10px, transparent) 763px top, linear-gradient(to right, black 1px, transparent 1px, transparent) 768px top, linear-gradient(to right, rgba(0, 0, 255, 0.2) 10px, transparent 10px, transparent) 1019px top, linear-gradient(to right, blue 1px, transparent 1px, transparent) 1024px top, linear-gradient(to right, rgba(0, 128, 0, 0.2) 10px, transparent 10px, transparent) 1435px top, linear-gradient(to right, green 1px, transparent 1px, transparent) 1440px top;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+[debug=breakpoints] {
+  position: fixed;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+[debug=breakpoints] {
+  z-index: 999999;
+}
+[debug=breakpoints]::after {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: auto;
+}
+[debug=breakpoints]::after {
+  content: "-";
+  color: #FFF;
+  background: black;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: monospace;
+  padding: 0.2em 0.7em;
+  display: block;
+  opacity: 0.8;
+  text-align: center;
+}
+@media screen and (max-width: 640px) {
+  [debug=breakpoints]::after {
+    background: gray;
+    content: "PHONE (640px and less)";
+  }
+}
+@media screen and (min-width: 641px) and (max-width: 768px) {
+  [debug=breakpoints]::after {
+    background: black;
+    content: "TABLET (640px to 768px)";
+  }
+}
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  [debug=breakpoints]::after {
+    background: blue;
+    content: "LAPTOP (768px to 1024px)";
+  }
+}
+@media screen and (min-width: 1025px) {
+  [debug=breakpoints]::after {
+    content: "DESKTOP (1024px to 1440px)";
+    background: green;
+  }
+}
+@media screen and (max-width: 360px) {
+  [debug=breakpoints]::after {
+    background: red;
+    content: "MINI (360px and less)";
+  }
+}
+@media screen and (min-width: 1441px) {
+  [debug=breakpoints]::after {
+    background: purple;
+    content: "WIDESCREEN (more than 1440px)";
+  }
+}
+
+.clearfix:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
+.childs-left {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.childs-center {
+  display: flex;
+  justify-content: center;
+}
+
+.childs-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.childs-spaced {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-overflow {
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.text-hyphens {
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
+  max-width: 100%;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.text-upper {
+  text-transform: uppercase;
+}
+
+.text-lower {
+  text-transform: lowercase;
+}
+
+.text-middle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.text-bottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}
+
+.img-left {
+  float: left;
+  margin: 0 var(--lh) var(--lh) 0;
+}
+
+.img-right {
+  float: right;
+  margin: 0 0 var(--lh) var(--lh);
+}
+
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.no-drag {
+  -webkit-user-drag: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-animation, .no-animation *,
+[animation=off], [animation=off] * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
+.no-touch {
+  pointer-events: none;
+}
+.no-touch .has-touch {
+  pointer-events: all;
+}

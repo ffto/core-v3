@@ -1,0 +1,18 @@
+
+
+.item-skip-to-content{
+	@include corner(top, left);
+	color     : var(--skip-color, black);
+	background: var(--skip-bg, white);
+	border    : 1px solid var(--skip-color, black);
+	display   : inline-block;
+	padding   : 1em 1.5em;
+	margin    : 1em;
+	transform : translateY(-200%);
+	transition: transform 0.3s;
+	z-index   : 9999;
+
+	&:focus{
+		transform:translateY(0%); 
+	}
+}

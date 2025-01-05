@@ -1,0 +1,74 @@
+////
+/// Classes
+/// List of classes that are used in both style.scss and style-admin.scss
+////
+
+// box -------------------------------------------------------------------------
+.box{
+	@include add-borders();
+	@include bold(false);
+
+	&{
+		display      : inline-flex;
+		background   : none;
+		align-items  : center;
+		line-height  : 0.8;
+		padding      : 0 0.25em;
+		gap          : 0.35em;
+		margin-bottom: 0.2em;
+		height       : 1em;
+		overflow     : hidden;
+	}
+}
+
+// link ------------------------------------------------------------------------
+.lnk{
+	text-decoration:underline;
+
+	@include is-hover{
+		text-decoration:none;
+	}
+
+	&.is-inverse{
+		text-decoration:none;
+
+		@include is-hover{
+			text-decoration:underline;
+		}
+	}
+}
+
+// buttons ---------------------------------------------------------------------
+.btn{
+    @extend .box;
+	display    : inline-flex;
+	align-items: center;
+	position   : relative;
+	cursor     : pointer;
+
+	path{
+		stroke: currentColor;
+		fill  : transparent;
+	}
+
+	@include is-hover{
+		background-color: $color-dark;
+		color           : $color-light;
+	}	
+}
+
+// Images ----------------------------------------------------------------------
+.icn{
+	display:inline-block;
+	max-width:none;
+}
+
+// redactions ------------------------------------------------------------------
+redact{
+	background-color:var(--color, #{$color-dark}) !important;
+	color:transparent !important;
+	display:inline !important;
+	font-size:1rem !important;
+	line-height:1rem !important;
+	font-family:monospace !important;
+}

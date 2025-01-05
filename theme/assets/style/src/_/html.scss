@@ -1,0 +1,682 @@
+////
+/// Reset HTML box
+/// 
+/// source:
+/// @link https://github.com/necolas/normalize.css/blob/master/normalize.css
+/// @link https://www.joshwcomeau.com/css/custom-css-reset/
+/// 
+/// @since 3.0.1 Updated the "--margin-top" and "--margin-bottom" in "html{}" to both have a value (not 0)
+//// 
+
+@use "sass:math";
+// @use 'utils' as *;
+
+// =====================================================================================================================
+// Variables
+// =====================================================================================================================
+// html stuff
+$html-color                 : $color-dark !default;
+$html-background            : $color-light !default;
+$html-border                : $color-dark !default;
+// general
+$html-remove-margin         : true !default;
+$html-antialias             : true !default;
+// heading
+$html-heading-color         : inherit !default;
+$html-heading-font          : null !default;
+// link
+$html-link-color            : inherit !default;
+$html-link-color-hover      : null !default;
+$html-link-underline        : true !default;
+$html-link-underline-hover  : none !default;
+// list
+$html-list-offset           : 1.2em;
+// media
+$html-media-responsive      : true !default;
+// table
+$html-table                 : true !default;
+$html-table-font            : inherit !default;
+// form
+$html-form-font             : inherit !default;
+$html-form-inputs           : true !default;
+$html-button-color          : $color-light !default;
+$html-button-background     : $color-dark !default;
+$html-button-padding        : 0.5em 1em !default;
+$html-input-color           : currentColor !default;
+$html-input-background      : transparent !default;
+$html-input-border          : currentColor !default;
+$html-input-padding         : 0.5em !default;
+// behavior
+$html-selection-color       : #b3d4fc !default;
+$html-placeholder-color     : rgba(0, 0, 0, 0.4) !default;
+
+// =====================================================================================================================
+// General
+// =====================================================================================================================
+*, *::before, *::after{
+	box-sizing:border-box;
+}
+
+// remove default margins
+*{
+    @if ($html-remove-margin){
+        margin: 0;
+    }
+}
+
+html{
+    @include screen-vars;
+    @include column-vars;
+
+    &{
+        @include font(
+            $family     : true,
+            $size       : $text-size,
+            $line-height: math.div($text-baseline, $text-size),
+            $bold       : $text-weight,
+            $base       : false,
+            $vars       : true,
+        );
+    }
+    &{
+        margin         : 0;
+        overflow-anchor: none;      // Chrome has an annoying bug if not set, items that are pushing content (like accordion) behave weirdly    
+        position       : relative;
+
+        // default margin for block elements
+        --margin-top        : var(--lh);
+        --margin-bottom     : var(--lh);
+
+        // default first/last margins
+        --first-margin-top  : 0;
+        --last-margin-bottom: 0;
+    }
+}
+
+body{
+    margin                     : 0;
+    color                      : $html-color;
+    background                 : $html-background;
+    touch-action               : manipulation;
+    -webkit-tap-highlight-color: $color-transparent;  // remove the link highlight when tapped
+    -webkit-text-size-adjust   : 100%;
+
+    @if ($html-antialias == true){
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+}
+
+// default margins block elements
+:where(h1, h2, h3, h4, h5, h6, p, ul, ol, figure, canvas, iframe, table, fieldset, summary, form){
+    margin-top   : var(--margin-top, 0);
+    margin-bottom: var(--margin-bottom);
+    overflow-wrap: break-word;
+
+    // by default, the first element in a list has not top margin, to align properly with items besides
+    :where(&:first-child){
+        margin-top: var(--first-margin-top, 0);
+    }
+    :where(&:last-child){
+        margin-bottom : var(--last-margin-bottom, var(--margin-bottom));
+    }
+}
+
+// =====================================================================================================================
+// Text
+// =====================================================================================================================
+@include headings{
+    @if ($html-heading-font){
+		family : to-font-family($html-heading-font);
+	}
+	@if ($html-heading-color){
+		color:$html-heading-color;
+	}
+}
+
+h1{ @include font-size(40); }
+h2{ @include font-size(24); }
+h3{ @include font-size(20); }
+h4{ @include font-size(18); }
+h5{ @include font-size(14); }
+h6{ @include font-size(12); }
+
+small{
+	font-size:to-text-size($text-size-small);
+}
+
+strong, b{
+	font-weight:$text-weight-bold;
+}
+
+em, i{
+	font-style:italic;
+}
+
+sup, sub{
+    font-size:to-text-size($text-size-sup);
+    position: relative;
+    vertical-align:baseline;
+}
+sup{
+	top:-0.45em;
+}
+sub{
+	bottom: -0.25em;
+}
+
+code, kbd, samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+// =====================================================================================================================
+// Links
+// =====================================================================================================================
+a{
+	@if ($html-link-color){
+		color:$html-link-color;
+	}
+    @if ($html-link-underline != null){
+        text-decoration:if($html-link-underline == true, underline, $html-link-underline);
+    }
+
+	@include is-hover{
+        @if ($html-link-color-hover){
+            color:$html-link-color-hover;
+        }
+        @if ($html-link-underline-hover != null){
+            text-decoration:if($html-link-underline-hover == true, underline, $html-link-underline-hover);
+        }		
+	}
+
+    // remove the focus styling inside the <a>
+    :where(&){
+        @include set-focus(':visible');
+    }
+}
+
+// =====================================================================================================================
+// Lists
+// =====================================================================================================================
+:where(ul, ol){
+    @include set-spacing(0 $html-list-offset);
+    
+    &{
+        list-style-position:outside;
+    }
+
+    // children
+    :where(ul, ol){
+        @include margin(0 false);
+	}
+}
+
+ul, ol{
+	&.is-clear, &:where([unstyled]){
+		@include list-clear;
+	}
+	&.is-inline{
+		@include list-inline(0.5em);
+	}
+}
+
+ul{
+	list-style-type:disc;
+}
+
+ol{
+	list-style-type:decimal;
+}
+
+ul:where([unstyled]), ol:where([unstyled]){
+    @include list-clear;
+}
+
+menu{
+    @include list-clear;
+}
+
+// =====================================================================================================================
+// Media
+// =====================================================================================================================
+img{
+    border        : 0;
+    height        : auto;
+    vertical-align: top;
+    
+    // if there's an image in a button, it needs to be middle aligned to look good
+	button &{
+		vertical-align:middle;
+	}
+}
+
+img, picture, video, canvas, svg{
+    display: block;
+
+    @if ($html-media-responsive){
+		max-width:100%;
+	}
+
+    &[unstyled]{
+        max-width:none;
+    }
+}
+
+svg, canvas, iframe{
+	vertical-align:top;
+}
+
+// =====================================================================================================================
+// Table
+// =====================================================================================================================
+table{
+    border-collapse: collapse;
+    color          : inherit;
+    font           : inherit;
+    width          : 100%;
+}
+
+@if ($html-table){
+    table{
+        font-family: to-font-family($html-table-font);        
+    }
+    th, td{
+        border    : 1px solid $html-border;
+        padding   : 0.5em;
+        text-align: left;
+    }
+}
+
+// =====================================================================================================================
+// Form
+// =====================================================================================================================
+:where(fieldset){
+    border:none;
+	padding:0;
+	min-width:0;
+
+    :where(input), textarea, select{
+        width:100%;
+    }
+    :where([type="checkbox"], [type="radio"]){
+        width:auto;
+    }
+}
+
+label, legend{
+	display:block;
+	font:inherit;
+}
+
+label[for], label:has(input, select, textarea){
+    cursor:pointer;
+}
+
+button, input, optgroup, select, textarea, [contenteditable]{
+	font-family   : to-font-family($html-form-font);
+	font-size     : inherit;
+	line-height   : inherit;
+	letter-spacing: inherit;
+}
+
+button, [href], input, select, textarea, [contenteditable], :where([tabindex]:not([tabindex="-1"])){
+    @include set-focus(':visible');
+}
+
+button, [type="checkbox"], [type="radio"], [type="button"], [type="reset"], [type="submit"], [role="button"], select{
+    cursor: pointer;
+}
+
+button[unstyled]{
+    appearance        : none;
+    -webkit-appearance: none;
+    
+    :where(&){
+        font-weight  : inherit;
+        color        : inherit;
+        border       : none;
+        border-radius: 0;
+        background   : none;
+        padding      : 0;
+        margin       : 0;
+        text-align   : inherit;
+    }
+}
+
+textarea, 
+:where(input:not([type="radio"], [type="checkbox"])), 
+:where([contenteditable]:not([contenteditable="false"])){
+    -webkit-appearance:none;
+}
+
+textarea{
+    resize:none;
+}
+
+// add default CSS for inputs
+@if ($html-form-inputs){
+    :where(button, [type="button"], [type="reset"], [type="submit"], [role="button"]):not([unstyled]){
+        color        : $html-button-color;
+        background   : $html-button-background;
+        padding      : $html-button-padding;
+        border       : 1px solid $html-border;
+        border-radius: 1.5em;
+    }
+
+    textarea, 
+    .input-wrap,
+    :where(input:not([type="radio"], [type="checkbox"])), 
+    :where([contenteditable]:not([contenteditable="false"])){
+        display           : inline-block;
+        border            : 1px solid $html-input-border;
+        padding           : $html-input-padding;
+        color             : $html-input-color;
+        background        : $html-input-background;
+        border-radius     : 0;
+        appearance        : none;
+        -webkit-appearance: none;
+        width             : 100%;
+    }
+
+    :where([type="checkbox"], [type="radio"]){
+        border            : 1px solid $html-input-border;
+        background-color  : $html-input-background;
+        padding           : 3px;
+        width             : 0.75em;
+        height            : 0.75em;
+        appearance        : none;
+        position          : relative;
+        -moz-appearance   : none;
+        -webkit-appearance: none;
+
+        &::after{
+            height:100%;
+            width:100%;
+            display:block;
+            content:'';
+        }
+    }
+    :where([type="radio"]){
+        border-radius:1em;
+    }
+    :where([type="checkbox"]:checked)::after{
+        @include background-cross($angle:45deg, $color:$html-input-border);
+    }
+    :where([type="radio"]:checked)::after{
+        border-radius:1em;
+        background-color:$html-input-border;
+    }
+
+    select{
+        background        : right 5px center / 16px no-repeat url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBQcm8gNi41LjEgYnkgQGZvbnRhd2Vzb21lIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20gTGljZW5zZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tL2xpY2Vuc2UgKENvbW1lcmNpYWwgTGljZW5zZSkgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTI1NiA0MjkuM2wyMi42LTIyLjYgMTkyLTE5Mkw0OTMuMyAxOTIgNDQ4IDE0Ni43bC0yMi42IDIyLjZMMjU2IDMzOC43IDg2LjYgMTY5LjQgNjQgMTQ2LjcgMTguNyAxOTJsMjIuNiAyMi42IDE5MiAxOTJMMjU2IDQyOS4zeiIvPjwvc3ZnPg==);
+        background-color  : $html-input-background;
+        border            : 1px solid $html-input-border;
+        border-radius     : 0;
+        padding           : $html-input-padding;
+        padding-right     : 1.2em;
+        appearance        : none;
+        -moz-appearance   : none;
+        -webkit-appearance: none;
+        width             : 100%;
+    }
+
+    [contenteditable]{
+        min-height:calc(var(--rows) * var(--lh)); // have a min-height with var(--rows)
+    }
+    
+    
+}
+
+.input-wrap{
+    @include set-focus();
+    
+    &{
+        display: inline-flex;
+        gap    : 0.5em;
+    }
+
+    > :where(*){
+        font   : inherit;
+        border : none;
+        padding: 0;
+    }
+}
+
+// =====================================================================================================================
+// Other elements
+// =====================================================================================================================
+hr{
+    background-color: $html-border;
+    height          : 1px;
+    border          : none;
+}
+
+summary{
+	cursor: pointer;
+
+    &[unstyled]{
+        display:block;
+        -webkit-appearance:none;
+    }
+    &[unstyled]::-webkit-details-marker{
+	    display:none;
+    }
+}
+details[unstyled] summary{
+    display:block;
+    -webkit-appearance:none;
+}
+
+dialog{
+	padding:0;
+	border:none;
+
+    &:not([open]){
+        display:none;
+    }
+}
+
+// =====================================================================================================================
+// Attributes
+// =====================================================================================================================
+[hidden]{
+	display:none !important;
+}
+
+[hidden="opacity"], [hidden="visibility"]{
+	display       : revert !important;
+	opacity       : 0 !important;
+	pointer-events: none !important;
+}
+
+[hidden="size"], [invisible]{
+	display       : revert !important;
+	height        : 0 !important;
+	width         : 0 !important;
+	padding       : 0 !important;
+	margin        : 0 !important;
+	border        : 0 !important;
+	opacity       : 0 !important;
+	clip          : rect(1px,1px,1px,1px);
+	overflow      : hidden;
+	pointer-events: none !important;
+}
+
+[invisible]{
+	position:absolute !important;
+}
+
+[pointer]{
+	cursor: pointer;
+}
+
+[disabled]{
+    pointer-events:none;
+    opacity:0.5;
+}
+
+// =====================================================================================================================
+// Behaviors
+// =====================================================================================================================
+// ::moz-selection needs to be seperated from the ::selection
+::-moz-selection{
+    color      : var(--text-selection-fg);
+	background : var(--text-selection-bg, $html-selection-color);
+	text-shadow: none;
+}
+::selection{
+	color      : var(--text-selection-fg);
+	background : var(--text-selection-bg, $html-selection-color);
+	text-shadow: none;
+}
+
+::placeholder{ 
+    font:inherit;
+    color:$html-placeholder-color;
+    opacity:0.8;
+}
+
+// Custom placeholder (for [contenteditable] in general)
+[placeholder]:empty::before{
+    content:attr(placeholder);
+    pointer-events:none;
+    color:$html-placeholder-color;
+}
+
+// =====================================================================================================================
+// Components
+// =====================================================================================================================
+
+// =====================================================================================================================
+// Debug
+// =====================================================================================================================
+@include debug-columns;
+@include debug-breakpoints;
+@include debug-screen;
+// =====================================================================================================================
+// General
+// =====================================================================================================================
+.clearfix:after {
+	content:"";
+	clear:both;
+	display:table;
+}
+
+.float-left{
+	float:left;
+}
+
+.float-right{
+	float:right;
+}
+
+.childs-left{
+	display:flex;
+	justify-content:flex-start;
+}
+.childs-center{
+	display:flex;
+	justify-content:center;	
+}
+.childs-right{
+	display:flex;
+	justify-content:flex-end;	
+}
+.childs-spaced{
+	display:flex;
+	justify-content:space-between;	
+}
+
+
+// =====================================================================================================================
+// Text
+// =====================================================================================================================
+.text-left{
+	text-align:left;
+}
+
+.text-center{
+	text-align:center;
+}
+
+.text-right{
+	text-align:right;
+}
+
+.text-overflow{
+	@include text-ellipsis;
+}
+
+.text-hyphens{
+	@include text-hyphens;
+}
+
+.text-upper{
+	text-transform:uppercase;
+}
+
+.text-lower{
+	text-transform:lowercase;
+}
+
+.text-middle{
+	display:flex;
+	flex-direction:column;
+	justify-content:center;
+}
+
+.text-bottom{
+	display:flex;
+	flex-direction:column;
+	justify-content:flex-end;
+}
+
+.text-nowrap{
+	white-space:nowrap;
+}
+
+// =====================================================================================================================
+// Media
+// =====================================================================================================================
+.img-left{
+	float:left;
+	margin:0 var(--lh) var(--lh) 0;
+}
+
+.img-right{
+	float:right;
+    margin:0 0 var(--lh) var(--lh);
+}
+
+// =====================================================================================================================
+// Behavior
+// =====================================================================================================================
+.no-select{
+	@include user-select(false);
+}
+
+.no-drag{
+	-webkit-user-drag:none;
+}
+
+.no-scrollbar{
+    scrollbar-width : none;
+	&::-webkit-scrollbar{ display: none; }
+}
+
+.no-animation, .no-animation *, 
+[animation="off"], [animation="off"] *{
+    -webkit-transition: none !important;
+    -moz-transition   : none !important;
+    -o-transition     : none !important;
+    transition        : none !important;
+}
+
+.no-touch{
+	pointer-events:none;
+
+	.has-touch{
+		pointer-events:all;
+	}
+}

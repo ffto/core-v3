@@ -1,0 +1,61 @@
+.item-field-dropdown{
+	// nothing
+}
+
+.field-dropdown{
+	&--trigger{
+		@extend .btn;
+	}
+	&--knob{
+		margin-left:0;
+
+		path{
+			stroke: currentColor;
+			fill  : transparent;
+		}
+	}
+	.icn{
+		vertical-align:middle;
+	}
+
+	// Overlay -----------------------------------------------------------------
+	&--overlay{
+		border   : none;
+		top      : -2px;
+		left     : -0.2em;
+		padding  : 1.05em 5px 0 3px;
+		z-index  : 1;
+		min-width: 350px;
+		@include add-shadow(top);
+	}
+	&--options{
+		width:auto;
+		@include scrollbar-style;
+		@include area-expand(2.5px, right);
+
+		li{
+			margin-bottom:-1px;
+			white-space:nowrap;
+			@include add-borders(top);
+
+			@include is-hover ($selected:'.is-selected'){
+				background-color: black;
+				color           : white;
+				--color         : white;
+			}
+		}
+		span{
+			display:block;
+		}
+	}
+	
+	// States ------------------------------------------------------------------
+	&.is-open &{
+		&--trigger{
+			z-index:2;
+		}
+		&--knob{
+			rotate:180deg;
+		}
+	}
+}

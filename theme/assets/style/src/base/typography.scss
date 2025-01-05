@@ -1,0 +1,55 @@
+////
+/// Mixins
+/// List of font size mixins. Having them all here make it easier to control responsive sizes
+////
+
+// fonts -----------------------------------------------------------------------
+@include font-face(Monument, "monument/ABCMonumentGroteskMono-Regular");
+// @include font-face(Studio, "studio/StudioPro-Bold-Web/StudioPro-Bold");
+@include font-face(Studio, "studio/StudioPro-UltraBold-Web/StudioPro-UltraBold");
+
+// [ ] I need the font-bold
+
+// general ---------------------------------------------------------------------
+@mixin text{
+    @include font-size($text-size);
+}
+
+// @mixin text-xs{
+// }
+
+// @mixin text-small{    
+// }
+
+// @mixin text-medium{
+// }
+
+// @mixin text-large{    
+// }
+
+@mixin text-xl{    
+    @include font-size(155, 136);
+}
+
+// headings --------------------------------------------------------------------
+@mixin text-h1{    
+}
+
+@mixin text-h2{    
+}
+
+@mixin text-h3{    
+}
+
+@mixin text-h4{    
+}
+
+@mixin text-h5{    
+}
+
+// elements --------------------------------------------------------------------
+// @mixin text-label{    
+// }
+
+// @mixin text-button{
+// }

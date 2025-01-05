@@ -1,0 +1,17 @@
+.page-about{
+	&__logos{
+		display      : flex;
+		align-items  : center;
+		gap          : 1em;
+		margin-top   : 2.35em;
+		margin-bottom: 2.35em;
+		
+		.img{
+			width:auto;
+			height:33px;
+		}
+	}
+	&__contributors{
+		columns:3;
+	}
+}

@@ -1,0 +1,47 @@
+$is-wp : false;	// set the font-dir and image-dir automatically
+
+// Colors ----------------------------------------------------------------------
+$color-dark        : #181818;
+$color-light       : #FFFFFF;
+$color-gray        : #e8e8e8;
+$color-gray-medium : #d1d1d1;
+$color-gray-dark   : #a3a3a3;
+$color-orange      : #ff973e;
+$color-orange-light: #ffb678;
+
+// Text ------------------------------------------------------------------------
+$text-size    : 15;
+$text-baseline: 17;
+$font-families: (
+	Monument: (Monument, sans-serif),
+);
+
+// Screen ----------------------------------------------------------------------
+$screen-mini   : 360px;   // m
+$screen-phone  : 640px;   // sm
+$screen-tablet : 768px;   // md
+$screen-laptop : 1024px;  // lg
+$screen-desktop: 1440px;  // xl
+
+// Columns ---------------------------------------------------------------------
+$column-count  : 12;
+$column-gap    : 20px;
+$column-padding: 0.2rem;
+$column-screens: (
+	phone 		: (count:6, gap:12, padding:15),
+	tablet 		: null,
+	laptop 		: null,
+	desktop 	: null,
+	widescreen 	: null,
+);
+
+// Html ------------------------------------------------------------------------
+$html-table      : false;
+$html-form-inputs: false;
+
+// Debug -----------------------------------------------------------------------
+$debug-screen : (
+	// size     : desktop,
+	// height 	 : 600,
+	// selector : '.overlay',
+);

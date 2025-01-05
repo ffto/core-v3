@@ -1,0 +1,44 @@
+.site-body{
+    display: flex;
+    @include screen-padding('0.1rem $ 4rem');
+}
+
+.site-menu{
+    flex         : 0 0 auto;
+    width        : 172px;
+    padding-right: 0.25em;
+
+    a{
+		@extend .lnk, .is-inverse;
+	}
+}
+
+.site-main{
+    flex:1 1 auto;
+
+    > section{
+        @include add-shadow;	
+    }
+
+    > section > h1{
+		padding:0 0.2rem 2.15rem;		
+		margin-bottom:0.25em;
+        @include text;
+		@include bold(false);
+        @include add-borders(bottom, ':dash');                
+    }
+
+    > section > h2{
+        margin-top:3.1em;
+        margin-bottom:0;
+        padding-bottom:2.3em;
+        @include text;
+		@include bold(false);
+        @include add-borders(top bottom, ':dash');  
+    }
+
+    > section > *{
+        padding-left:0.2rem;
+        padding-right:205px;
+    }
+}

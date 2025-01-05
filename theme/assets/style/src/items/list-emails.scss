@@ -1,0 +1,16 @@
+.item-list-emails{
+	&__link{
+		text-decoration:none;
+		display:flex;		
+	}
+	&__addresses{
+		@include text-ellipsis('...');
+	}
+	&__thread-count{
+		margin-left:1em;
+	}
+	&__subject{
+		@include text-ellipsis('...');
+		vertical-align:middle;
+	}
+}

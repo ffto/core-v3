@@ -31,7 +31,7 @@ echo ffto_to_asset('@styles/style.css');
 
 $i = null;
 $v = null;
- 
+
 $people = [
     ['name' => 'John Doe "asdf"', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234'],
     ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678'],

@@ -45,9 +45,9 @@ $people = [
     ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345']
 ];
 // $items = [1, 10, [98, 66, 32], 66, null, [33, [true, 0, false, true]], 999];
-$v = ffto_arr_find($people, ['age'=>['>='=>35]]);
+// $v = ffto_arr_find($people, ['age'=>['>='=>35]]);
 // $v = ffto_include_content(function (){ return [0,9,555]; });
-
+$v = ffto_arr_sort($people, 'name DESC');
 
 echo '<pre>';
 echo NL . NL;

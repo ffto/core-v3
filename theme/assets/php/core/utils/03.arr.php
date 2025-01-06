@@ -1,5 +1,16 @@
 <?php 
 /**
+ * @package Utils\Array
+ */
+
+/* =====================================================================================================================
+Quick functions
+===================================================================================================================== */
+
+/* =====================================================================================================================
+Functions
+===================================================================================================================== */
+/**
  * ffto_arr_find
  *
  * ```php
@@ -340,4 +351,39 @@ function ffto_arr_flatten ($arr, $args=null){
 	$_arr = [];
 	array_walk_recursive($arr, function($v) use (&$_arr) { $_arr[] = $v; });
 	return $_arr;
+}
+
+/**
+ * Sort array
+ *	
+ * @since 2025-01-05
+ * 
+ * @param [type] $arr
+ * @param [type] $orderby
+ * @param [type] $args
+ * @return array
+ */
+function ffto_arr_sort ($arr, $orderby, $args=null){
+	$args = _args($args, array(
+		// 'null'      => 'AFTER',
+		// 'case'      => true,
+		// 'order'     => 'ASC',
+		// 'values'    => array(),
+		// 'callbacks' => array(),	//
+		'return' => false, // [object, array]
+	));
+
+	if (!is_array($arr)) return false;
+	if (empty($arr)) 	 return [];
+
+	// make a copy of the array
+	$arr = array_slice($arr, 0, null, true);
+		
+
+	// $is_array = !ffto_arr_is_obj($arr);
+	// if ($is_array){
+	// 	$arr = array_values($arr);
+	// }
+
+	return $arr;
 }

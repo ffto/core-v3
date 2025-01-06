@@ -49,21 +49,6 @@ $people = [
     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345'],
 ];
 
-// $items = [1, 10, [98, 66, 32], 66, null, [33, [true, 0, false, true]], 999];
-// $v = ffto_arr_find($people, ['age'=>['>='=>35]]);
-// $v = ffto_include_content(function (){ return [0,9,555]; });
-
-// $v = ffto_arr_sort($people, 'name ASC');
-// $v = ffto_arr_sort($people, 'age ASC NULL_BEFORE');
-// $v = ffto_arr_sort($people, 'gender [male, nonbinary, female] ASC NULL_AFTER');
-// $v = ffto_arr_sort($people, 'gender [$genders] DESC', ['case'=>false, 'fields'=>[
-// 	'genders' => ['female','tWO-spirit'],
-// ]]);
-// $v = ffto_arr_sort($people, 'age DESC NULL_BEFORE, phone ASC');
-// $v = ffto_arr_sort($people, [
-// 	'key'  => 'age',
-// 	'null' => 'before',
-// ]);
 
 echo '<pre>';
 echo NL . NL;

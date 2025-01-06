@@ -56,11 +56,13 @@ echo NL . NL;
 	echo 'Value is set: ' . ($v ? 'Yes' : 'no');
 	echo NL . NL;
 	
-	echo '<br><br>---------<br><br>' . NL . NL . NL;
+	echo '<br><br>---------<br><br>';
 	
 	echo _string($v, ['pretty'=>false], ','.NL);
+	echo NL.NL;
+	echo _string($v, null, ','.NL);
 	
-	echo '<br><br>---------<br><br>' . NL . NL . NL;
+	echo '<br><br>---------<br><br>' . NL;
 
 	_p($v);
 

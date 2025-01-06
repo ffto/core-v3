@@ -137,6 +137,9 @@ function ffto_to_duration ($str){
 	return is_nan($time) ? 0 : $time;
 }
 
+// [ ] Add "ffto_to_duration_string" and rename "ffto_to_duration" to "ffto_to_duration_time"
+
+
 /**
  * Tries to get the single and plural verion of a string. This only works on English text.
  *

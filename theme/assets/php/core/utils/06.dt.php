@@ -74,7 +74,7 @@
  * ]]);
  * // January 30, 2020 3:40 PM
  * 
- * * ffto_to_date('2020-01-30 3:40pm', ['format'=>[
+ * ffto_to_date('2020-01-30 3:40pm', ['format'=>[
  * 	'*'					=> 'F j, Y',
  * 	'current-year' 		=> 'F j',
  * ]]);
@@ -576,7 +576,7 @@ function ffto_to_date ($date=null, $args=null, $return=null){
  * 
  * ffto_to_daterange('2024-12-05', '2025-10-05 10pm', true);
  * // Returned object with tons of data (eg. has_time, is_live, is_passed, text, end_utc, ...)
- * // ["timezone"=>"America\/Toronto", "start"=>...]
+ * // ["timezone"=>"America/Toronto", "start"=>...]
  * 
  * ffto_to_daterange('2024-12-05', '2025-10-05 10pm', 'Y.m.d', 'text');
  * // "2024.12.05 to 2025.10.05, 10 PM"

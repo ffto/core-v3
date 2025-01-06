@@ -4,6 +4,12 @@
  */
 
 /* =====================================================================================================================
+Contants 
+===================================================================================================================== */
+define('RE_SORT_ITEMS', '/(?:(\$?[a-z*][a-z_0-9\-\.]*)((?:\s?(?:(?:\[[^\]]+\])|(?:[^,]+)))*))(?:,|$)/i');  // match: "gender [male, female, nonbinary] DESC NULL_BEFORE, phone ASC, age DESC" => "(gender)( [male, female, nonbinary] DESC NULL_BEFORE)", "(phone)( ASC)", "(age)( DESC)"
+define('RE_SORT_FIELDS', '/\[([^\]]+)\]/');                                                                // match: "gender [male, female, nonbinary]" => "[(male, female, nonbinary)]
+
+/* =====================================================================================================================
 Quick functions
 ===================================================================================================================== */
 
@@ -46,7 +52,6 @@ Functions
  * // ]
  * 
  * $items = [1,10,'asdf',['bob'=>true], 99];
- 
  * ffto_arr_find($items, 10, ':key', true);
  * // 1
  * 
@@ -365,10 +370,10 @@ function ffto_arr_flatten ($arr, $args=null){
  */
 function ffto_arr_sort ($arr, $orderby, $args=null){
 	$args = _args($args, array(
-		// 'null'      => 'AFTER',
-		// 'case'      => true,
-		// 'order'     => 'ASC',
-		// 'values'    => array(),
+		'order'     => 'ASC',			// [asc, desc]
+		'case'      => true,			// [true, false]
+		'null'      => 'AFTER',			// [before, after]
+		'fields'    => [],				// 
 		// 'callbacks' => array(),	//
 		'return' => false, // [object, array]
 	));
@@ -378,12 +383,67 @@ function ffto_arr_sort ($arr, $orderby, $args=null){
 
 	// make a copy of the array
 	$arr = array_slice($arr, 0, null, true);
-		
 
-	// $is_array = !ffto_arr_is_obj($arr);
-	// if ($is_array){
-	// 	$arr = array_values($arr);
-	// }
+	// Split all the orderby items (from a string)
+	if (is_string($orderby)){
+		$orderby = _match($orderby, RE_SORT_ITEMS, false, true);
+	// Make sure it's an array of the $orderby is an object array
+	}else if (ffto_is_obj($orderby)){
+		$orderby = [$orderby];
+	}
+
+	$_orderby = array();
+	foreach ($orderby as $v){
+		// String orderby
+		if (is_string($v)){
+			$vv     = _match($v, RE_SORT_ITEMS, true);
+			$key    = $vv[0];
+			$v      = $vv[1];
+			$fields = _match($v, RE_SORT_FIELDS);                        // get the fields
+			$v      = strtoupper(preg_replace(RE_SORT_FIELDS, '', $v));  // leftover: NULL_BEFORE, NULL_AFTER, CASE_SENSITIVE, CASE_INSENSITIVE, DESC, ASC
+
+			$v = [
+				'key'    => $key,
+				'order'  => strpos($v, 'DESC') !== false ? 'DESC' : (strpos($v, 'ASC') !== false ? 'ASC' : $args['order']),
+				'case'   => strpos($v, 'CASE_INSENSITIVE') !== false ? false : (strpos($v, 'CASE_SENSITIVE') !== false ? true : $args['case']),
+				'null'   => strpos($v, 'NULL_BEFORE') !== false ? 'BEFORE' : (strpos($v, 'NULL_AFTER') !== false ? 'AFTER' : $args['null']),
+				'fields' => $fields,
+			];
+		// Callback function
+		}else if (ffto_is_callback($v)){
+			$v = [
+				'key'  => $v,      // will be called on every items (a and b)
+				'case' => false,
+			];
+		}
+		
+		if (!is_array($v)) continue;
+
+		$v = _args($v, [
+			'order'  => $args['order'],
+			'case'   => $args['case'],
+			'null'   => $args['null'],
+			'fields' => null,
+		]);
+
+		$fields = $v['fields'];
+
+		// try matching a fields set in $args
+		if (is_string($fields) && strpos($fields, '$') === 0){
+			$fields      = substr($fields, 1);
+			$v['fields'] = _get($args['fields'], $fields);
+		}else if (is_string($fields)){
+			$v['fields'] = _array($fields);
+		}else{
+			$v['fields'] = null;
+		}
+
+		// TODO maybe make all the fields lower-case? with the $v['case']
+
+		$_orderby[] = $v;
+	}
+
+	_err($_orderby);
 
 	return $arr;
 }

@@ -194,7 +194,7 @@ function ffto_arr_fuse ($keys, $values, $args=null){
  * 	'maria-is-magic' => 'Maria',
  * 	'zac-4evar'      => 'Zac',
  * ];
- * $v = ffto_arr_insert($a, ['$id'=>'super-john', '$value'=>'John Doe'], ['maria-is-magic'=>'after']);
+ * $v = ffto_arr_insert($a, ['$key'=>'super-john', '$value'=>'John Doe'], ['maria-is-magic'=>'after']);
  * // ["bob-the-man"=>"Bob", "maria-is-magic"=>"Maria", "super-john"=>"John Doe", "zac-4evar"=>"Zac"]
  * ```
  *
@@ -208,9 +208,14 @@ function ffto_arr_insert ($arr, $value, $position=':end'){
 	$key    = null;
 	$is_obj = ffto_is_obj($arr);
 
-	// special kind of $value with a string key (eg.: ['$id'=>'key', '$value'=>'value'])
-	if (isset($value['$id'], $value['$value'])){
-		$key   = $value['$id'];
+	if (isset($value['$id'])){
+		_warn('Keys "$id" should be replaced by "$key"');
+		$value['$key'] = $value['$id'];
+	}
+
+	// special kind of $value with a string key (eg.: ['$key'=>'key', '$value'=>'value'])
+	if (isset($value['$key'], $value['$value'])){
+		$key   = $value['$key'];
 		$value = $value['$value'];
 	}else{
 		$key = is_string($value) && $is_obj ? _slug($key) : count($arr);
@@ -359,27 +364,140 @@ function ffto_arr_flatten ($arr, $args=null){
 }
 
 /**
- * Sort array
- *	
- * @since 2025-01-05
+ * Sort array with either a string, a series of string, an object, an array or a callback function
  * 
+ * Every string orderby has this pattern:
+ * 	{$prop_name | "$key" | "*"} [{$fields}] {ASC|DESC} {CASE_SENSITIVE|CASE_INSENSITIVE} {NULL_BEFORE|NULL_AFTER}
+ * 
+ * Here's some examples:
+ * - "age DESC CASE_INSENSITIVE"
+ * - "name ASC NULL_BEFORE"
+ * - "$key DESC"
+ * - "* ASC NULL_BEFORE CASE_SENSITIVE"
+ * 
+ * ```php
+ * $people = [
+ *     ['name' => 'John Doe', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234'],
+ *     ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678'],
+ *     ['name' => 'Sam Johnson', 'age' => 24, 'gender' => 'male', 'phone' => '555-8765'],
+ *     ['name' => 'Lisa Brown', 'gender' => 'female', 'phone' => '555-3456'],
+ *     ['name' => 'Chris Green', 'age' => 35, 'gender' => 'two-spirit', 'phone' => '555-9876'],
+ *     ['name' => 'Anna White', 'age' => 22, 'gender' => 'female', 'phone' => '555-5432'],
+ *     ['name' => 'Paul Black', 'age' => 31, 'gender' => 'male', 'phone' => '555-6543'],
+ *     ['name' => 'Emma Gray', 'gender' => 'female', 'phone' => '555-4321'],
+ *     ['name' => 'Emma Gray 2', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321'],
+ *     ['name' => 'David Blue', 'age' => 40, 'gender' => 'male', 'phone' => '555-8761'],
+ *     ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345'],
+ *     ['name' => 'Finish', 'gender' => 'two-spirit', 'phone' => '555-2345'],
+ *     ['name' => 'Pat', 'age' => 29, 'gender' => 'nonbinary', 'phone' => '555-2345'],
+ *     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345'],
+ * ];
+ * 
+ * ffto_arr_sort($people, 'name ASC');
+ * // {"name":"Anna White","age":22,"gender":"female","phone":"555-5432"},
+ * // {"name":"Chris Green","age":35,"gender":"two-spirit","phone":"555-9876"},
+ * // {"name":"David Blue","age":40,"gender":"male","phone":"555-8761"},
+ * // {"name":"Emma Gray","gender":"female","phone":"555-4321"},
+ * // {"name":"Emma Gray 2","age":27,"gender":"female","phone":"555-4321"},
+ * // {"name":"Finish","gender":"two-spirit","phone":"555-2345"},
+ * // {"name":"Jane Smith","age":32,"gender":"female","phone":"555-5678"},
+ * // {"name":"John Doe","age":28,"gender":"male","phone":"555-1234"},
+ * // {"name":"Julia","age":30,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Lisa Brown","gender":"female","phone":"555-3456"},
+ * // {"name":"Pat","age":29,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Paul Black","age":31,"gender":"male","phone":"555-6543"},
+ * // {"name":"Sam Johnson","age":24,"gender":"male","phone":"555-8765"},
+ * // {"name":"Sophia Red","age":29,"gender":"female","phone":"555-2345"}
+ * 
+ * ffto_arr_sort($people, 'age ASC NULL_BEFORE')
+ * // {"name":"Lisa Brown","gender":"female","phone":"555-3456"},
+ * // {"name":"Emma Gray","gender":"female","phone":"555-4321"},
+ * // {"name":"Finish","gender":"two-spirit","phone":"555-2345"},
+ * // {"name":"Anna White","age":22,"gender":"female","phone":"555-5432"},
+ * // {"name":"Sam Johnson","age":24,"gender":"male","phone":"555-8765"},
+ * // {"name":"Emma Gray 2","age":27,"gender":"female","phone":"555-4321"},
+ * // {"name":"John Doe","age":28,"gender":"male","phone":"555-1234"},
+ * // {"name":"Sophia Red","age":29,"gender":"female","phone":"555-2345"},
+ * // {"name":"Pat","age":29,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Julia","age":30,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Paul Black","age":31,"gender":"male","phone":"555-6543"},
+ * // {"name":"Jane Smith","age":32,"gender":"female","phone":"555-5678"},
+ * // {"name":"Chris Green","age":35,"gender":"two-spirit","phone":"555-9876"},
+ * // {"name":"David Blue","age":40,"gender":"male","phone":"555-8761"}
+ * 
+ * ffto_arr_sort($people, 'gender [male, nonbinary, female] ASC NULL_AFTER');
+ * // {"name":"John Doe","age":28,"gender":"male","phone":"555-1234"},
+ * // {"name":"Sam Johnson","age":24,"gender":"male","phone":"555-8765"},
+ * // {"name":"Paul Black","age":31,"gender":"male","phone":"555-6543"},
+ * // {"name":"David Blue","age":40,"gender":"male","phone":"555-8761"},
+ * // {"name":"Pat","age":29,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Julia","age":30,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Jane Smith","age":32,"gender":"female","phone":"555-5678"},
+ * // {"name":"Lisa Brown","gender":"female","phone":"555-3456"},
+ * // {"name":"Anna White","age":22,"gender":"female","phone":"555-5432"},
+ * // {"name":"Emma Gray","gender":"female","phone":"555-4321"},
+ * // {"name":"Emma Gray 2","age":27,"gender":"female","phone":"555-4321"},
+ * // {"name":"Sophia Red","age":29,"gender":"female","phone":"555-2345"},
+ * // {"name":"Chris Green","age":35,"gender":"two-spirit","phone":"555-9876"},
+ * // {"name":"Finish","gender":"two-spirit","phone":"555-2345"}
+ * 
+ * ffto_arr_sort($people, 'gender [$genders] DESC', ['case'=>false, 'fields'=>[
+ * 	'genders' => ['female','tWO-spirit'],
+ * ]]);
+ * // {"name":"Chris Green","age":35,"gender":"two-spirit","phone":"555-9876"},
+ * // {"name":"Finish","gender":"two-spirit","phone":"555-2345"},
+ * // {"name":"Jane Smith","age":32,"gender":"female","phone":"555-5678"},
+ * // {"name":"Lisa Brown","gender":"female","phone":"555-3456"},
+ * // {"name":"Anna White","age":22,"gender":"female","phone":"555-5432"},
+ * // {"name":"Emma Gray","gender":"female","phone":"555-4321"},
+ * // {"name":"Emma Gray 2","age":27,"gender":"female","phone":"555-4321"},
+ * // {"name":"Sophia Red","age":29,"gender":"female","phone":"555-2345"},
+ * // {"name":"Pat","age":29,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"Julia","age":30,"gender":"nonbinary","phone":"555-2345"},
+ * // {"name":"John Doe","age":28,"gender":"male","phone":"555-1234"},
+ * // {"name":"Sam Johnson","age":24,"gender":"male","phone":"555-8765"},
+ * // {"name":"Paul Black","age":31,"gender":"male","phone":"555-6543"},
+ * // {"name":"David Blue","age":40,"gender":"male","phone":"555-8761"}
+ * 
+ * ffto_arr_sort($people, 'age DESC NULL_BEFORE, phone ASC');
+ * // ...
+ * 
+ * ffto_arr_sort($people, ['key'=>'age', 'null'=>'before']);
+ * // ...
+ * ```
+ * 
+ * @since 2025-01-06
+ *  
  * @param [type] $arr
  * @param [type] $orderby
  * @param [type] $args
  * @return array
  */
 function ffto_arr_sort ($arr, $orderby, $args=null){
-	$args = _args($args, array(
-		'order'     => 'ASC',			// [asc, desc]
-		'case'      => true,			// [true, false]
-		'null'      => 'AFTER',			// [before, after]
-		'fields'    => [],				// 
-		// 'callbacks' => array(),	//
-		'return' => false, // [object, array]
-	));
+	if (is_bool($args)){
+		$args = ['preserve_keys'=>$args];
+	// Simple orderby of the items, not item properties
+	}else if (ffto_is_like($args, '/ASC|DESC/i')){
+		$args    = _args($args, ['order'=>$args]);
+		$orderby = '*';
+	}
 
+	$args = _args($args, array(
+		'order'         => 'ASC',     // [asc, desc]
+		'case'          => true,      // [true, false]
+		'null'          => 'AFTER',   // [before, after]
+		'fields'        => [],        // Fields to use for comparaison if an orderby items has a variable (eg.: [$genders] => $args['fields']['gendres] => [...])
+		'preserve_keys' => null,      // [object, array]
+		// 'values'	=> [],				// Using this to compare the items with a specific order of items (if found) // TODO not sure it's needed since 'fields' is there
+	), 'order');
+	
 	if (!is_array($arr)) return false;
 	if (empty($arr)) 	 return [];
+
+	$preserve_keys = $args['preserve_keys'];
+	if ($preserve_keys === null){
+		$preserve_keys = ffto_is_obj($arr);
+	}
 
 	// make a copy of the array
 	$arr = array_slice($arr, 0, null, true);
@@ -392,6 +510,7 @@ function ffto_arr_sort ($arr, $orderby, $args=null){
 		$orderby = [$orderby];
 	}
 
+	// Normalizing the orderbys
 	$_orderby = array();
 	foreach ($orderby as $v){
 		// String orderby
@@ -399,7 +518,7 @@ function ffto_arr_sort ($arr, $orderby, $args=null){
 			$vv     = _match($v, RE_SORT_ITEMS, true);
 			$key    = $vv[0];
 			$v      = $vv[1];
-			$fields = _match($v, RE_SORT_FIELDS);                        // get the fields
+			$fields = _match($v, RE_SORT_FIELDS);                        // get the fields if they exists
 			$v      = strtoupper(preg_replace(RE_SORT_FIELDS, '', $v));  // leftover: NULL_BEFORE, NULL_AFTER, CASE_SENSITIVE, CASE_INSENSITIVE, DESC, ASC
 
 			$v = [
@@ -426,24 +545,109 @@ function ffto_arr_sort ($arr, $orderby, $args=null){
 			'fields' => null,
 		]);
 
-		$fields = $v['fields'];
+		$v['order'] = is_string($v['order']) ? strtoupper($v['order']) : $v['order'];
+		$v['null']  = is_string($v['null']) ? strtoupper($v['null']) : $v['null'];
 
+		$fields = $v['fields'];
 		// try matching a fields set in $args
 		if (is_string($fields) && strpos($fields, '$') === 0){
 			$fields      = substr($fields, 1);
 			$v['fields'] = _get($args['fields'], $fields);
-		}else if (is_string($fields)){
+		}else if ($fields){
 			$v['fields'] = _array($fields);
 		}else{
 			$v['fields'] = null;
 		}
 
-		// TODO maybe make all the fields lower-case? with the $v['case']
+		// Make all the fields upper-case if the $args['case'] = false 
+		if ($v['fields'] && !$v['case']){
+			$v['fields'] = array_map(function ($vv){ return is_string($vv) ? strtoupper($vv) : $vv; }, $v['fields']);
+		}
 
 		$_orderby[] = $v;
 	}
+	
+	// Sorting all the items
+	uasort($arr, function ($a, $b) use ($arr, $args, $_orderby){
+		$compare = null;
 
-	_err($_orderby);
+		foreach ($_orderby as $v){
+			$key = $v['key'];	// ["$id", "*", or a specific value/path]
+			$aa  = $a;
+			$bb  = $b;
+			
+			// ":id" shouldn't be used anymore
+			if ($key === ':id' || $key === '$id'){
+				$key = '$key';
+				_warn('Keys ":id" and "$id" should be replaced by "$key"');
+			}
 
+			// Compared values = $key, * or a property of $a and $b
+			if ($key === '$key'){
+				$aa = array_search($a, $arr);
+				$bb = array_search($b, $arr);
+			}else if ($key !== '*'){
+				$aa = _get($a, $key);
+				$bb = _get($b, $key);
+			}
+			
+			// clean the strings
+			if (is_string($aa)){
+				$aa = ffto_str_strip_accents(strip_tags($aa));  // remove html tags, remove accents
+				$aa = $v['case'] ? $aa : strtoupper($aa);       // no case = uppercase
+			}
+			if (is_string($bb)){
+				$bb = ffto_str_strip_accents(strip_tags($bb));  // remove html tags, remove accents
+				$bb = $v['case'] ? $bb : strtoupper($bb);       // no case = uppercase
+			}
+
+			// same exact value
+			if ($aa === $bb) continue;
+			
+			// Search the value in the fields to get it's order (if it doenst exits, it's null)
+			if (is_array($v['fields'])){
+				$aa = array_search($aa, $v['fields']);
+				$bb = array_search($bb, $v['fields']);
+				$aa = $aa === false ? null : $aa;
+				$bb = $bb === false ? null : $bb;
+			}
+
+			// one of the attribute is missing
+			if (is_null($aa)){
+				$compare = $v['null'] === 'AFTER' ? 1 : -1;
+			}else if (is_null($bb)){
+				$compare = $v['null'] === 'AFTER' ? -1 : 1;
+			}else{
+				// make sure they are real numeric value 
+				if (is_numeric($aa)){
+					$aa = (float)$aa;
+					$bb = (float)$bb;
+				}
+
+				// convert boolean to numbers
+				if (is_bool($aa)){
+					$aa = $aa ? 1 : 0;
+					$bb = $bb ? 1 : 0;
+				}
+
+				// make the comparaison of the value
+				if ($aa > $bb) 		$compare = 1;
+				else if ($aa < $bb) $compare = -1;
+
+				// switch the order 
+				if ($compare && $v['order'] === 'DESC'){
+					$compare *= -1;
+				}
+			}
+
+			// The comparaison value has been found
+			if ($compare) break;
+		}
+
+		return $compare;
+	});
+
+	$arr = $preserve_keys ? $arr : array_values($arr);
+	
 	return $arr;
 }

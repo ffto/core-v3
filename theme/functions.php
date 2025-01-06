@@ -33,18 +33,18 @@ $i = null;
 $v = null;
 
 $people = [
-    ['name' => 'John Doe "asdf"', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234'],
+    ['name' => 'John Doe', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234'],
     ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678'],
     ['name' => 'Sam Johnson', 'age' => 24, 'gender' => 'male', 'phone' => '555-8765'],
     ['name' => 'Lisa Brown', 'gender' => 'female', 'phone' => '555-3456'],
-    ['name' => 'Chris Green', 'age' => 35, 'gender' => 'male', 'phone' => '555-9876'],
+    ['name' => 'Chris Green', 'age' => 35, 'gender' => 'two-spirit', 'phone' => '555-9876'],
     ['name' => 'Anna White', 'age' => 22, 'gender' => 'female', 'phone' => '555-5432'],
     ['name' => 'Paul Black', 'age' => 31, 'gender' => 'male', 'phone' => '555-6543'],
     ['name' => 'Emma Gray', 'gender' => 'female', 'phone' => '555-4321'],
-    ['name' => 'Emma Gray', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321'],
+    ['name' => 'Emma Gray 2', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321'],
     ['name' => 'David Blue', 'age' => 40, 'gender' => 'male', 'phone' => '555-8761'],
     ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345'],
-    ['name' => 'Finish', 'two-spirit' => 'female', 'phone' => '555-2345'],
+    ['name' => 'Finish', 'gender' => 'two-spirit', 'phone' => '555-2345'],
     ['name' => 'Pat', 'age' => 29, 'gender' => 'nonbinary', 'phone' => '555-2345'],
     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345'],
 ];
@@ -52,16 +52,18 @@ $people = [
 // $items = [1, 10, [98, 66, 32], 66, null, [33, [true, 0, false, true]], 999];
 // $v = ffto_arr_find($people, ['age'=>['>='=>35]]);
 // $v = ffto_include_content(function (){ return [0,9,555]; });
-$v = ffto_arr_sort($people, 'name DESC');
-$v = ffto_arr_sort($people, 'gender [male, female, nonbinary] DESC NULL_BEFORE');
-$v = ffto_arr_sort($people, 'gender [$genders] DESC', ['fields'=>[
-	'genders' => ['female','two-spirit'],
-]]);
-$v = ffto_arr_sort($people, 'phone ASC, age DESC');
-$v = ffto_arr_sort($people, [
-	'key'  => 'age',
-	'null' => 'before',
-]);
+
+// $v = ffto_arr_sort($people, 'name ASC');
+// $v = ffto_arr_sort($people, 'age ASC NULL_BEFORE');
+// $v = ffto_arr_sort($people, 'gender [male, nonbinary, female] ASC NULL_AFTER');
+// $v = ffto_arr_sort($people, 'gender [$genders] DESC', ['case'=>false, 'fields'=>[
+// 	'genders' => ['female','tWO-spirit'],
+// ]]);
+// $v = ffto_arr_sort($people, 'age DESC NULL_BEFORE, phone ASC');
+// $v = ffto_arr_sort($people, [
+// 	'key'  => 'age',
+// 	'null' => 'before',
+// ]);
 
 echo '<pre>';
 echo NL . NL;
@@ -71,7 +73,7 @@ echo NL . NL;
 	
 	echo '<br><br>---------<br><br>' . NL . NL . NL;
 	
-	echo _string($v, null, ', ');
+	echo _string($v, ['pretty'=>false], ','.NL);
 	
 	echo '<br><br>---------<br><br>' . NL . NL . NL;
 

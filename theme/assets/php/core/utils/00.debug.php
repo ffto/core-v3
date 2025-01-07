@@ -324,7 +324,7 @@ function ffto_startup_javascript (){
 				var v = meta[i];
 	
 				if ($_meta.length){
-					$_meta.push('· · · · · · ·');
+					$_meta.push('- - - - - - - - - - - - - - -');
 				}
 	
 				for (var ii in v){

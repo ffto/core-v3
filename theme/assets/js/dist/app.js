@@ -11627,6 +11627,7 @@ FFTO.Utils.add('dom.event', function (DOM, CONSTS, RE, _, $win, $doc){
 				'percentX'   : Math.round(rx * 1000000) / 10000 + '%',
 				'percentY'   : Math.round(ry * 1000000) / 10000 + '%',
 				'orientation': orientation,
+				'target'	 : target,
 			};
 
 			callback(e);

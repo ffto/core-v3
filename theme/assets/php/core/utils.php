@@ -2996,7 +2996,7 @@ function _time ($name=null, $log=null, $_performance=false){
 	}
 
 	$key    = $name ? $name : '*';
-	$path   = $_performance ? '$performances/'.$key : '$timing/'.$key;
+	$path   = $_performance ? '$timing_performances/'.$key : '$timing/'.$key;
 	$time   = microtime(true);
 	$memory = $_performance ? memory_get_usage() : 0;
 	$item   = _global($path, [
@@ -4925,13 +4925,14 @@ function _config ($key=null, $value=null, $save=false){
 			'dir'	  => '', 						// TODO current directory, should be generated from the current route directory for example, ...
 		]);
 
+		// [ ] Be able to to use the "./" for path in the current __FILE__ path
+
 		// config file is now available, so things can be fetched/saved to it
 		$config_file = ffto_get_file('@env/config.json', null, []);
 		_global('$config_file', $config_file, true);
 
 		// site versioning
 		ffto_config_add_option('version', 'save=1&update=ffto_config_set_version', '1.0.0');
-
 
 		// include the core files.
 		ffto_get_files([

@@ -49,10 +49,59 @@ $people = [
     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345'],
 ];
 
+$tree = [
+	['name'=>'Bob', 'children' => [
+		['name'=>'Marie', 'children' => [
+			['name'=>'Finish'],
+			['name'=>'Julia'],
+			['name'=>'Pat'],
+		]],
+		['name'=>'David']
+	]],
+	['name'=>'Emma'],
+	['name'=>'Sarah', 'children'=>[
+		['name'=>'Simon'],
+		['name'=>'Juni', 'children'=>[
+			['name'=>'Sophie'],
+			['name'=>'Marc']
+		]],
+		['name'=>'John']
+	]]
+];
+
+$ul = [
+	'a1',
+	[
+		'b1',
+		'b2',
+		[
+			'c1',
+			'c2',
+		],
+		'b3',
+		[
+			'c3'
+		]
+	],
+	'a2'
+];
+
+$v = ffto_arr_traverse($tree, false, function ($v, $a){
+	// echo '<li>';
+	// echo $v;
+	// echo '<li>'.$v['name'].'</li>';
+	// echo $v['name'];
+}, function ($v, $a){
+	return ['age'=>7];
+	// echo ']';
+	// echo '</li>';
+	// if (!$a['parent']){
+	// 	echo '</ul>';	
+	// }
+});
 
 echo '<pre>';
 echo NL . NL;
-
 	echo 'Value is set: ' . ($v ? 'Yes' : 'no');
 	echo NL . NL;
 	
@@ -65,7 +114,6 @@ echo NL . NL;
 	echo '<br><br>---------<br><br>' . NL;
 
 	_p($v);
-
 echo '</pre>';
 ?>
 <script>

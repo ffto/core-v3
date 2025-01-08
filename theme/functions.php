@@ -86,19 +86,25 @@ $ul = [
 	'a2'
 ];
 
-$v = ffto_arr_traverse($tree, false, function ($v, $a){
-	// echo '<li>';
+
+
+$v = ffto_arr_traverse($tree, function ($v, $a){
+	if ($a['isFirst']){
+		echo '<ul>';
+	}
+	
+	echo '<li>';
 	// echo $v;
-	// echo '<li>'.$v['name'].'</li>';
-	// echo $v['name'];
+	echo $v['name'];
 }, function ($v, $a){
-	return ['age'=>7];
-	// echo ']';
-	// echo '</li>';
-	// if (!$a['parent']){
-	// 	echo '</ul>';	
-	// }
+	echo '</li>';
+
+	if ($a['isLast']){
+		echo '</ul>';
+	}
 });
+
+
 
 echo '<pre>';
 echo NL . NL;

@@ -1551,6 +1551,63 @@ function ffto_to_asset ($asset, $args=null, $name=null){
 	return __html($el, $args['attrs']);
 }
 
+function ffto_to_list ($list, $args=null, $format=null){
+	/*
+	$tree = [
+		['name'=>'Bob', 'children' => [
+			['name'=>'Marie', 'children' => [
+				['name'=>'Finish'],
+				['name'=>'Julia'],
+				['name'=>'Pat'],
+			]],
+			['name'=>'David']
+		]],
+		['name'=>'Emma'],
+		['name'=>'Sarah', 'children'=>[
+			['name'=>'Simon'],
+			['name'=>'Juni', 'children'=>[
+				['name'=>'Sophie'],
+				['name'=>'Marc']
+			]],
+			['name'=>'John']
+		]]
+	];
+
+	$ul = [
+		'a1',
+		[
+			'b1',
+			'b2',
+			[
+				'c1',
+				'c2',
+			],
+			'b3',
+			[
+				'c3'
+			]
+		],
+		'a2'
+	];
+
+	$v = ffto_arr_traverse($tree, function ($v, $a){
+		if ($a['isFirst']){
+			echo '<ul>';
+		}
+		
+		echo '<li>';
+		// echo $v;
+		echo $v['name'];
+	}, function ($v, $a){
+		echo '</li>';
+
+		if ($a['isLast']){
+			echo '</ul>';
+		}
+	});
+	*/
+}
+
 // _skip_link, to_metas, to_pill, to_dates (check other sites for common patterns), accordion and overlay would be their own file
 // to_table (simple table)
 

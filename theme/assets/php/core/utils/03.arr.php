@@ -652,7 +652,7 @@ function ffto_arr_sort ($arr, $orderby, $args=null){
 	return $arr;
 }
 
-function ffto_arr_traverse ($arr, $args='', $pre_callback=null, $post_callback=null){
+function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback=null){
 	if (ffto_is_callback($args)){
 		$args = array(
 			'callback'      => $args,
@@ -660,28 +660,33 @@ function ffto_arr_traverse ($arr, $args='', $pre_callback=null, $post_callback=n
 		);
 	}
 
-	// [ ] be able to go through ALL or multiple keys
-
 	$args = _args($args, array(
-		'key'           => 'children',	// [key, false = on any array]
-		// 'order'			=> null,
+		'key'           => 'children',       // [key, false = on any array, if in a list array]
 		'callback'      => $pre_callback,
 		'post_callback' => $post_callback,
 	), 'key');
 
-	// $keys = _array($args['key']);
+	// TODO in post_callback, that would be where we do things like "orderby" ...
+
 	$key  = $args['key'];
 	$pre  = ffto_is_callback($args['callback']) ? $args['callback'] : null;
 	$post = ffto_is_callback($args['post_callback']) ? $args['post_callback'] : null;
 	$_walk = function ($arr, $depth, $_walk) use ($key, $pre, $post, $args){
 		$_arr    = [];
 		$is_list = ffto_is_list($arr);
+		$index 	 = 0;
+		$count 	 = count($arr);
 		foreach ($arr as $i => $v){
-			$_args = array(
-				'key'    => $i,
-				'depth'  => $depth ? $depth : 0,
-				'parent' => $depth === null ? null : $arr,
-			);
+			$_args = [
+				'key'     => $i,
+				'index'   => $index,
+				'depth'   => $depth ? $depth : 0,
+				'isFirst' => $index === 0,
+				'isLast'  => $index === $count-1,
+				'parent'  => $depth === null ? null : $arr,
+			];
+
+			$index++;
 
 			// There's no keys, so any list array are traversed
 			if ($key === false){
@@ -697,94 +702,23 @@ function ffto_arr_traverse ($arr, $args='', $pre_callback=null, $post_callback=n
 
 				$children  = _get($v, $key);
 				$children  = is_array($children) ? $_walk($children, $i, $_walk) : [];
+				_set($v, $key, $children); // Always add the "children" key
 				
-				// Always add the "children" key
-				_set($v, $key, $children);
-
 				$v = $post ? _apply($post, $v, $_args) : $v;
 			}
 			
 			if (ffto_is($v)){
-				$_arr[$i] = $v;
+				$_arr[$i] = $v;				
 			}
 		}
-
+		
 		return $_arr;
 	};
 
 	$is_obj = ffto_is_obj($arr);
 	$_arr   = $is_obj ? [$arr] : $arr;
-	$_arr   = $_walk($_arr, $is_obj ? null : 0, $_walk);
+	$_arr   = $_walk($_arr, 0, $_walk);
 	$arr 	= $is_obj ? reset($_arr) : $_arr;
 
 	return $arr;
-
-	/*
-	$filtered = array();
-	foreach ($arr as $i=>$item){
-		$response = __ffto_array_traverse__call($item, $i, null, 0, $args);
-		if (isset($response)){
-			$filtered[$i] = $response;
-		}
-	}
-
-	return $filtered;
-	*/
 }
-
-/*
-function __ffto_array_traverse__call ($item, $index, $parent, $depth=0, $args=array()){
-	$a = array(
-		'index' => $index,
-		'parent'=> $parent,
-		'depth' => $depth, 
-	);
-
-	if (ffto_is_callback($args['callback'])){
-		$response = $args['callback']($item, $a);
-		$item 	  = isset($response) ? $response : $item;
-	}
-
-	// find the keys (if false, then all arrays)
-	// $keys = [];
-	// if ($args['key']){
-	// 	$keys[] = $args['key'];
-	// }else if (is_array($item)){
-	// 	foreach ($item as $i => $v){
-	// 		$keys[] = $i;
-	// 	}
-	// }
-	// __err($item);
-
-
-	$children = ffto_get_value($item, $args['key'], array());
-
-	if (!empty($children) && $args['order']){
-		// $children = array_sort($children, $args['order']);
-	}
-
-	$filtered = array();
-
-	if (is_array($children) && !empty($children)){
-		foreach ($children as $i=>$child){
-			$response = __ffto_array_traverse__call($child, $i, $item, $depth + 1, $args);
-
-			if (isset($response)){
-				$filtered[$i] = $response;
-			}
-		}
-	}
-
-	ffto_set_value($item, $args['key'], $filtered);
-
-	if (ffto_is_callback($args['post_callback'])){
-		$response = $args['post_callback']($item, $a);
-
-		if (isset($response)){
-			$item = $response;
-		}
-	}
-
-	return $item;
-}
-*/

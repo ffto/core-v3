@@ -1087,16 +1087,16 @@ function _string ($v, $args=null, $join=', '){
 	}
 
 	$args = _args($args, array(
-		'template' => null,
-		'pair'     => null,
-		'join'     => $join,
-		'prefix'   => '',
-		'suffix'   => '',
-		'tag'	   => $tag,
-		'container'=> null,
-		'pretty'   => true,
-		'null'	   => false,
-		'tabs'     => 0,
+		'template'    => null,
+		'pair'        => null,
+		'join'        => $join,
+		'prefix'      => '',
+		'suffix'      => '',
+		'tag'         => $tag,
+		'container'   => null,
+		'pretty'      => true,
+		'null'        => false,
+		'tabs'        => 0,
 	), 'template');
 
 	// tags joining
@@ -1211,9 +1211,14 @@ function _string ($v, $args=null, $join=', '){
 			json_encode($v, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : 
 			json_encode($v, JSON_UNESCAPED_UNICODE);
 
-		// $v = strtr($v, [
-		// 	'\\/' => '/',
-		// ]);
+		// Try converting the output to a php array
+		if ($args['pretty'] === 'php'){
+			$v = strtr($v, [
+				'": ' => '" => ',
+				"{\n" => "[\n",
+			]);
+			$v = preg_replace('/\}(,|\n|$)/', ']$1', $v);
+		}
 	// use a template (if the value is a value value)
 	}else if (ffto_is($v) && $args['template']){
 		$v = _replace($args['template'], $v);

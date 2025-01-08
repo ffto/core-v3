@@ -49,62 +49,6 @@ $people = [
     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345'],
 ];
 
-$tree = [
-	['name'=>'Bob', 'children' => [
-		['name'=>'Marie', 'children' => [
-			['name'=>'Finish'],
-			['name'=>'Julia'],
-			['name'=>'Pat'],
-		]],
-		['name'=>'David']
-	]],
-	['name'=>'Emma'],
-	['name'=>'Sarah', 'children'=>[
-		['name'=>'Simon'],
-		['name'=>'Juni', 'children'=>[
-			['name'=>'Sophie'],
-			['name'=>'Marc']
-		]],
-		['name'=>'John']
-	]]
-];
-
-$ul = [
-	'a1',
-	[
-		'b1',
-		'b2',
-		[
-			'c1',
-			'c2',
-		],
-		'b3',
-		[
-			'c3'
-		]
-	],
-	'a2'
-];
-
-
-
-$v = ffto_arr_traverse($tree, function ($v, $a){
-	if ($a['isFirst']){
-		echo '<ul>';
-	}
-	
-	echo '<li>';
-	// echo $v;
-	echo $v['name'];
-}, function ($v, $a){
-	echo '</li>';
-
-	if ($a['isLast']){
-		echo '</ul>';
-	}
-});
-
-
 
 echo '<pre>';
 echo NL . NL;
@@ -113,9 +57,9 @@ echo NL . NL;
 	
 	echo '<br><br>---------<br><br>';
 	
-	echo _string($v, ['pretty'=>false], ','.NL);
-	echo NL.NL;
-	echo _string($v, null, ','.NL);
+	echo _string($v, 'pretty=php', ','.NL);
+	// echo NL.NL;
+	// echo _string($v, null, ','.NL);
 	
 	echo '<br><br>---------<br><br>' . NL;
 

@@ -17,7 +17,7 @@ Quick functions
 Functions
 ===================================================================================================================== */
 /**
- * ffto_arr_find
+ * Find item/items through an array.
  *
  * ```php
  * $people = [
@@ -652,35 +652,177 @@ function ffto_arr_sort ($arr, $orderby, $args=null){
 	return $arr;
 }
 
+/**
+ * Traverse through a multi-dimension array. Navigating a special key OR simpler array without special key.
+ * 
+ * @since 2025-01-08
+ * 
+ * ```php
+ * $family = [
+ * 	['name'=>'Bob', 'children' => [
+ * 		['name'=>'Marie', 'children' => [
+ * 			['name'=>'Finish'],
+ * 			['name'=>'Julia'],
+ * 			['name'=>'Pat'],
+ * 		]],
+ * 		['name'=>'David']
+ * 	]],
+ * 	['name'=>'Emma'],
+ * 	['name'=>'Sarah', 'children'=>[
+ * 		['name'=>'Simon'],
+ * 		['name'=>'Juni', 'children'=>[
+ * 			['name'=>'Sophie'],
+ * 			['name'=>'Marc']
+ * 		]],
+ * 		['name'=>'John']
+ * 	]]
+ * ];
+ * 
+ * // Only the people with children
+ * $v = ffto_arr_traverse($family, function ($v, $a){
+ * 	$c = _get($v, 'children', []);
+ * 	return $c ? $v : false;
+ * });
+ * // [
+ * //     "name" => "Bob",
+ * //     "children" => [
+ * //         [
+ * //             "name" => "Marie",
+ * //             "children" => []
+ * //         ]
+ * //     ]
+ * // ],
+ * // [
+ * //     "name" => "Sarah",
+ * //     "children" => [
+ * //         [
+ * //             "name" => "Juni",
+ * //             "children"  => []
+ * //         ]
+ * //     ]
+ * // ]
+ * 
+ * $v = ffto_arr_traverse($family, function ($v, $a){
+ * 	$prefix = str_repeat('&nbsp;&nbsp;', $a['depth']) . ($a['depth'] ? '- ' : '');
+ * 	echo "{$prefix}{$v['name']}";
+ * 
+ * 	$c = _get($v, 'children', []);
+ * 	if ($c = count($c)){
+ * 		echo " ({$c} children)";
+ * 	}
+ * 	echo "<br>";
+ * });
+ * // Bob (2 children)
+ * //   - Marie (3 children)
+ * //     - Finish
+ * //     - Julia
+ * //     - Pat
+ * //   - David
+ * // Emma
+ * // Sarah (3 children)
+ * //   - Simon
+ * //   - Juni (2 children)
+ * //     - Sophie   
+ * // 	  - Marc
+ * //   - John
+ * 
+ * $ul = [
+ * 	'a1',
+ * 	[
+ * 		'b1',
+ * 		'b2',
+ * 		[
+ * 			'c1',
+ * 			'c2',
+ * 		],
+ * 		'b3',
+ * 		[
+ * 			'c3'
+ * 		]
+ * 	],
+ * 	'a2'
+ * ];
+ * 
+ * $v = ffto_arr_traverse($ul, [
+ * 	'key'           => false,
+ * 	'pre_walk'      => function ($v, $a){ echo NL.$a['tab'].'<ul>'; },
+ * 	'pre_callback'  => function ($v, $a){ echo NL.$a['tab'].'<li>'.$v; },
+ * 	'post_callback' => function ($v, $a){ echo '</li>'; },
+ * 	'post_walk'     => function ($v, $a){ echo NL.$a['tab'].'</ul>'; },
+ * ]);
+ * // <ul>
+ * // 	<li>a1</li>
+ * // 	<ul>
+ * // 		<li>b1</li>
+ * // 		<li>b2</li>
+ * // 		<ul>
+ * // 			<li>c1</li>
+ * // 			<li>c2</li>
+ * // 		</ul>
+ * // 		<li>b3</li>
+ * // 		<ul>
+ * // 			<li>c3</li>
+ * // 		</ul>
+ * // 	</ul>
+ * // 	<li>a2</li>
+ * // </ul>
+ * ``` 
+ *
+ * @param [type] $arr
+ * @param [type] $args
+ * 	- 'key' 			[false] 			(default) The children key to traverse. If set to false, it will find array list to traverse.
+ * 	- 'callback' 		[$pre_callback]  	Callback to format/filter the children
+ * 	- 'post_callback' 	[$post_callback]  	Callback done after the children have been traversed
+ * @param [type] $pre_callback	Callback to format/filter the children
+ * @param [type] $post_callback	Callback done after the children have been traversed
+ * @return array
+ */
 function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback=null){
 	if (ffto_is_callback($args)){
 		$args = array(
-			'callback'      => $args,
+			'pre_callback'  => $args,
 			'post_callback' => $pre_callback,
 		);
 	}
 
 	$args = _args($args, array(
 		'key'           => 'children',       // [key, false = on any array, if in a list array]
-		'callback'      => $pre_callback,
+		'pre_callback'  => $pre_callback,
 		'post_callback' => $post_callback,
+		'pre_walk'      => null,
+		'post_walk'     => null,
 	), 'key');
+
+	if (isset($args['callback'])){
+		$args['pre_callback'] = $args['callback'];
+	}
 
 	// TODO in post_callback, that would be where we do things like "orderby" ...
 
-	$key  = $args['key'];
-	$pre  = ffto_is_callback($args['callback']) ? $args['callback'] : null;
-	$post = ffto_is_callback($args['post_callback']) ? $args['post_callback'] : null;
-	$_walk = function ($arr, $depth, $_walk) use ($key, $pre, $post, $args){
+	$key       = $args['key'];
+	$pre       = ffto_is_callback($args['pre_callback']) ? $args['pre_callback'] : null;
+	$post      = ffto_is_callback($args['post_callback']) ? $args['post_callback'] : null;
+	$pre_walk  = ffto_is_callback($args['pre_walk']) ? $args['pre_walk'] : null;
+	$post_walk = ffto_is_callback($args['post_walk']) ? $args['post_walk'] : null;
+	$_walk = function ($arr, $depth, $_walk) use ($key, $pre, $post, $pre_walk, $post_walk, $args){
 		$_arr    = [];
 		$is_list = ffto_is_list($arr);
 		$index 	 = 0;
 		$count 	 = count($arr);
+		
+		$_args = [
+			'depth'   => $depth,
+			'tab'	  => str_repeat(TAB, $depth),
+		];
+
+		_apply($pre_walk, $arr, $_args);
+
 		foreach ($arr as $i => $v){
-			$_args = [
+			$_args2 = [
 				'key'     => $i,
 				'index'   => $index,
-				'depth'   => $depth ? $depth : 0,
+				'depth'   => $depth,
+				'tab'	  => str_repeat(TAB, $depth + 1),
 				'isFirst' => $index === 0,
 				'isLast'  => $index === $count-1,
 				'parent'  => $depth === null ? null : $arr,
@@ -691,20 +833,21 @@ function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback
 			// There's no keys, so any list array are traversed
 			if ($key === false){
 				if ($is_list && ffto_is_list($v)){
-					$v = $_walk($v, $i, $_walk);
+					$v = $_walk($v, $depth + 1, $_walk);
 				}else{
-					$v = $pre ? _apply($pre, $v, $_args) : $v;
-					$v = $v && $post ? _apply($post, $v, $_args) : $v;
+					$v = $pre ? _apply($pre, $v, $_args2) : $v;
+					$v = $v && $post ? _apply($post, $v, $_args2) : $v;
 				}
 			}else{
-				$v = $pre ? _apply($pre, $v, $_args) : $v;
+				$v = $pre ? _apply($pre, $v, $_args2) : $v;
 				if (!$v) continue;
 
 				$children  = _get($v, $key);
-				$children  = is_array($children) ? $_walk($children, $i, $_walk) : [];
+				$children  = is_array($children) ? $_walk($children, $depth + 1, $_walk) : [];
+
 				_set($v, $key, $children); // Always add the "children" key
 				
-				$v = $post ? _apply($post, $v, $_args) : $v;
+				$v = $post ? _apply($post, $v, $_args2) : $v;
 			}
 			
 			if (ffto_is($v)){
@@ -712,7 +855,9 @@ function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback
 			}
 		}
 		
-		return $_arr;
+		_apply($post_walk, $arr, $_args);
+
+		return $is_list ? array_values($_arr) : $_arr;
 	};
 
 	$is_obj = ffto_is_obj($arr);
@@ -721,4 +866,49 @@ function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback
 	$arr 	= $is_obj ? reset($_arr) : $_arr;
 
 	return $arr;
+}
+
+/* =====================================================================================================================
+Casting
+===================================================================================================================== */
+function ffto_arr_to_columns ($arr, $count=2, $args=null){
+	if (!$count) return [];
+
+	$args = _args($args, [
+		'callback' => null,
+	]);
+
+
+	/*
+	$values = array();
+	$total  = 0;
+
+	// use a callback function to decode how we can decide in which column the item would be. Generally by calculating the about of characters there is
+	if (ffto_is_callback($callback)){
+		$total = 0;
+		foreach ($arr as $v){
+			$values[]  = $total;
+			$value     = ffto_apply($callback, array($v));
+			$total 	  += $value;
+		}
+	}else{
+		$values = array_keys($arr);
+		$total  = count($arr);
+	}
+
+	$columns = array();
+	$total   = $total / $count;
+	foreach ($arr as $i=>$item){
+		$value = floor($values[$i] / $total);
+		$index = $value % $count;
+
+		if (!isset($columns[$index])){
+			$columns[$index] = array();
+		}
+
+		$columns[$index][] = $item;
+	}
+
+	return $columns;
+	*/
 }

@@ -62,13 +62,15 @@ $pages = [
 	['id' => 10, 'name' => 'Case Studies', 'parent_id' => 3],
 ];
 
-$v = ffto_arr_to_tree($pages, 'parent_id -> id', 'name', true);
+// $v = ffto_arr_to_tree($pages, 'parent_id -> id', 'name', true);
 
-// $v = ffto_arr_to_tree($pages, 'parent_id -> id', function ($vv){
-// 	return [
-// 		'name' => $vv['name'],
-// 	];
-// }, true);
+$v = ffto_arr_to_tree($pages, 'parent_id -> id', function ($vv, $a){
+	if ($a['depth'] > 0) return false;
+
+	return [
+		'name' => $vv['name'],
+	];
+});
 
 
 echo '<pre>';

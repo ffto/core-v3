@@ -1481,13 +1481,48 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
  * //         "name" => "Contact"
  * //     ]
  * // ]
+ * 
+ * 
+ * ffto_arr_to_tree($pages, 'parent_id -> id', function ($vv, $a){
+ * 	if ($a['depth'] > 0) return false;
+ * 
+ * 	return [
+ * 		'name' => $vv['name'],
+ * 	];
+ * });
+ * // [
+ * //     [
+ * //         "name" => "Home",
+ * //         "children" => []
+ * //     ],
+ * //     [
+ * //         "name" => "About Us",
+ * //         "children" => []
+ * //     ],
+ * //     [
+ * //         "name" => "Services",
+ * //         "children" => []
+ * //     ],
+ * //     [
+ * //         "name" => "Contact",
+ * //         "children" => []
+ * //     ]
+ * // ]
  * ```
  *
  * @param [type] $arr
  * @param [type] $args
+ * 	- 'key' ['id'] Main unique key on an item
+ * 	- 'parent_key' ['parent_id'] Parent key on an item
+ * 	- 'children_key' ['children'] The key used to add the children item too 
+ * 	- 'root_key' [0] The default root key to start at
+ * 	- 'pluck' [false] Pluck only certain keys from every item
+ * 	- 'pre_callback' [$pre_callback] Format/Filter the item before anything is processes
+ * 	- 'post_callback' [$post_callback] Forat/filter the item after it's be processes
+ * 	- 'flatten' [false] Return a flatten version of the tree
  * @param [type] $pre_callback
  * @param [type] $post_callback
- * @return void
+ * @return array
  */
 function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=null){
 	if (ffto_is_callback($args)){
@@ -1510,8 +1545,8 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 	$args = _args($args, [
 		'key'           => 'id',
 		'parent_key'    => 'parent_id',
-		'root_key'		=> 0,
 		'children_key'	=> 'children',
+		'root_key'		=> 0,
 		'pluck'			=> $pluck,
 		'pre_callback'  => $pre_callback,
 		'post_callback' => $post_callback,
@@ -1540,42 +1575,53 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 
 		// Pluck certain keys
 		if ($p = $args['pluck']){
-			$p    = _array($p);
-			$item = _each([$v], ['single'=>true, 'return'=>$p]);
-		// Format the item
-		}else{
-			$item = _apply($args['pre_callback'], $v, [
-				'key'        => $_key,
-				'parent_key' => $_parent,
-			]);
+			$p = _array($p);
+			$v = _each([$v], ['single'=>true, 'return'=>$p]);
 		}
 
-		if (!$item) continue;
+		if (!$v) continue;
 
-		$children[$_key]     = $item;
+		$children[$_key]     = $v;
 		$parents[$_parent]   = isset($parents[$_parent]) ? $parents[$_parent] : [];
 		$parents[$_parent][] = $_key;
 	}
 
 	$flatten = [];
-	$_walk   = function ($parent_id, $_walk) use ($parents, $children, $args, &$flatten){
+	$_walk   = function ($parent_key, $depth, $_walk) use ($parents, $children, $args, &$flatten){
 		$parent = [];
-		$keys   = _get($parents, $parent_id, []);
+		$keys   = _get($parents, $parent_key, []);
 
 		foreach ($keys as $k){
-			$item      = _get($children, $k);
+			$item = _get($children, $k);
+
+			$item = _apply($args['pre_callback'], $item, [
+				'key'        => $k,
+				'parent_key' => $parent_key,
+				'depth'      => $depth,
+			]);
+
+			if (!$item) continue;
+
 			$flatten[] = $item;
 
 			$_k        = $args['children_key'];
-			$item[$_k] = $_walk($k, $_walk);
+			$item[$_k] = $_walk($k, $depth + 1, $_walk);
 			
-			$parent[]  = $item;
+			$item = _apply($args['post_callback'], $item, [
+				'key'        => $k,
+				'parent_key' => $parent_key,
+				'depth'		 => $depth,
+			]);
+
+			if (!$item) continue;
+
+			$parent[] = $item;
 		}
 
 		return $parent;
 	};
 
-	$tree = $_walk($args['root_key'], $_walk);
+	$tree = $_walk($args['root_key'], 0, $_walk);
 	
 	return $args['flatten'] ? $flatten : $tree;
 }

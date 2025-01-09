@@ -1383,3 +1383,7 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
 	*/
 	return $groups;
 }
+
+function ffto_arr_to_tree ($arr, $args=null){
+	
+}

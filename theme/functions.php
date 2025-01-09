@@ -66,41 +66,6 @@ $data = [
 	['layout'=>'foot', 'name'=>'Foot 2'],
 ];
 
-// $v = ffto_arr_to_group($people, 'gender');
-
-// $v = ffto_arr_to_group($people, function ($v){
-// 	$tags = _get($v, 'tags', []);
-// 	return array_map(function ($vv) use ($v){
-// 		return [
-// 			'$key'   => $vv,
-// 			'$value' => $v['name'],
-// 		];
-// 	}, $tags);
-// });
-
-// $v = ffto_arr_to_group($people, function ($v){
-// 	$age       = _get($v, 'age');
-// 	$age_group = is_numeric($age) ? floor($age / 10)*10 : $age;
-// 	return [
-// 		'$key'   => $age_group,
-// 		'$value' => $v['name'],
-// 		'$group' => [
-// 			'label' => $age_group ? "Age group of {$age_group} years old" : 'Unknown age group',
-// 		],
-// 	];
-// });
-
-$v = ffto_arr_to_group($data, 'layout -> name', ':object');
-
-// $v = ffto_arr_to_group($data, function ($v){
-// 	$l = _get($v, 'layout');
-// 	return [
-// 		// '$key'   => _get($v, 'layout'),
-// 		'$group' => _get($v, 'layout'),
-// 		'$value' => $v['value'],
-// 	];
-// }, true);
-
 
 echo '<pre>';
 echo NL . NL;

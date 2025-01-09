@@ -62,10 +62,18 @@ $pages = [
 	['id' => 10, 'name' => 'Case Studies', 'parent_id' => 3],
 ];
 
-// $v = ffto_arr_to_tree($pages, 'parent_id -> id', 'name', true);
+$dt = [
+	[
+		'date' => ['start'=>'2024-12-05', 'end'=>'2025-12-15'],
+		'time' => ['start'=>'10am', 'end'=>'12:32pm'],
+	],
+	[
+		'start' => '2025-01-15',
+		'end'	=> '2025-02-01'
+	]
+];
 
-$v = ffto_to_daterange('2024-12-05', '2025-10-05 10pm', 'time_format=`time ->` h:i', 'text');
-
+$v = ffto_to_dates($dt);
 
 echo '<pre>';
 echo NL . NL;

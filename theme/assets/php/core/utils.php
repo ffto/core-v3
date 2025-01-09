@@ -339,7 +339,7 @@ function ffto_is_args ($str){
  * @return bool
  */
 function ffto_has ($v, $key){
-	$v = _array($v);
+	$v = is_array($v) ? $v : _array($v);
 	return _get($v, $key) !== null;
 }
 
@@ -2265,6 +2265,10 @@ function _get ($item, $keys, $fallback=null, $args=null){
 		'or'        => '||',   // "or" separator
 	], 'empty');
 
+	if (ffto_is_str($keys, '.')){
+		_warn('The keys "'.$keys.'" are using the "." but should use "/" instead, if that was intended as a separator');
+	}
+
 	// _get($_SERVER, 'HTTP_HOST || SERVER_NAME');
 	// TODO separators, change the "." separator to something else OR have none
 
@@ -2313,7 +2317,6 @@ function _get ($item, $keys, $fallback=null, $args=null){
 
 	$alts  = is_array($keys) ? $keys : array_map('trim', explode($args['or'], (string)$keys)); // to reduct dependencies of _array -> _get, we re-do a similar _array() behavior
 	$value = null;
-
 
 	foreach ($alts as $alt){
 		// transform paths with square brackets to dots separators

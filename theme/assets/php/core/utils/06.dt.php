@@ -3,7 +3,6 @@
  * @package Utils\Date
  */
 
-
 /**
  * Decode a date and return it with multiple formatting options. When setting the 'format' $args, you can use condiftional formating 
  * when the date is this current year or not. To do so: 
@@ -219,6 +218,7 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 			$date = null; 
 		}
 	}
+
 	
 	// no date could be decoded
 	if (!$date) return false;	
@@ -642,18 +642,26 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	// - $start = ['start'=>'2021-04-01', 'end'=>'2021-05-25', 'time'=>false]
 	// - $start = '2021-04-01', $end = '2021-05-25'
 	// - $start = new DateTime('now'), $end = null
-
+		
+	// case: ['date'=>['start'=>..., 'end'=>...], 'time'=>['start'=>..., 'end'=>...]]
+	if (!$end && ffto_has($start, 'date')){
+		$_start      = _get($start, 'date/start');
+		$_end        = _get($start, 'date/end');
+		$_time_start = _get($start, 'time/start');
+		$_time_end   = _get($start, 'time/end');
+		$start       = ['date'=>$_start, 'time'=>$_time_start];
+		$end         = ['date'=>$_end, 'time'=>$_time_end];
 	// case: $start value is an array with both 'start' and 'end' values (and $end is null)
-	if (
+	}else if (
 		!$end && 
 		($_start = _get($start, 'start')) &&
 		($_end = _get($start, 'end'))
 	){
 		$_time = _get($start, 'time || has_time');
-		$start = ['date'=>$_start, 'time'=>$_time];
-		$end   = ['date'=>$_end, 'time'=>$_time];
+		$start = _args($_start, ['date'=>null, 'time'=>$_time], 'date');
+		$end   = _args($_end, ['date'=>null, 'time'=>$_time], 'date');
 	}
-
+		
 	// $start and $end might have different version of specifiying it's time
 	$start = [
 		'date' => _get($start, 'date', $start),
@@ -1029,16 +1037,83 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 
 function ffto_to_dates ($dates, $args=null, $return=null){
 	$args = _args($args, [
-		'join'            => null,
-		'empty'           => null,
-		'label'           => true,
+		'join'     => null,
+		'empty'    => null,
+		'label'    => true,
+		// 'template' => null,
+		'return'   => null,
 		// 'template_single' => null,
 		// 'template_many'   => null,
-		'return'          => '',
 	], 'return');
 
-	$_label = null;
+	$label    = null;
+	$has_time = null;
+	
+	// Object type, can be a special from the ACF Field: "group_hidden-dates.json". Or something like:
+	// [
+	//		'date'=>['start'=>'...', 'end'=>'...'],
+	//		'time'=>['start'=>'...', 'end'=>'...'],
+	//		'label'=>null
+	// ]
+	if (ffto_has($dates, 'date')){
+		$type  = _get($dates, 'date/type || type', null);
+		$start = _get($dates, 'date/start || date_start || start');
+		$end   = _get($dates, 'date/end || date_end || end');
+
+		if (!$type){
+			$type = $start && $end ? 'range' : 'single';
+		}
+
+		$label      = _get($dates, 'more/label || label');
+		$has_time   = _get($dates, 'time/has_time || has_time || time', false);
+		$time_start = $has_time ? _get($dates, 'time/start || time_start') : null;
+		$time_end   = $has_time ? _get($dates, 'time/end || time_end') : null;
+		
+		$dates = [];
+		if ($type === 'single' && $start){
+			$dates[] = [
+				'date'       => $start,
+				'time_start' => $time_start,
+				'time_end'   => $time_end,
+			];
+		}else if ($type === 'range' && $start){
+			$dates[] = [
+				'start' => ['date'=>$start, 'time'=>$time_start],
+				'end'   => ['date'=>$end, 'time'=>$time_end],
+			];
+		}else if ($type === 'multi'){
+			$dates = _get($dates, 'dates/items || items || dates', []);			
+		}else if ($time_start){
+			$dates[] = [
+				'date'       => null,
+				'time_start' => $time_start,
+				'time_end'   => $time_end,
+			];
+		}		
+	}else if (!ffto_is_list($dates)){
+		$dates = [$dates];
+	}
+
+	$dates = empty($dates) ? [] : $dates;
+	// $templates = ffto_to_conditional_format($dates, $args['template'], [
+	// 	'multi' => count($dates) > 1,
+	// 	'empty' => empty($dates),
+	// ], 'dates/formats');
+
+	// [ ] Get lower and hightest dates
+	$start  = null;
+	$end    = null;
 	$_dates = [];
+	foreach ($dates as $dt){
+		$dt = ffto_to_daterange($dt, null, $args, true);
+		if (!$dt) continue;
+
+		$start    = max($start, $dt['start']);
+		$end      = max($end, $dt['end']);
+		$_dates[] = $dt;
+	}
+		
+	p($_dates);
 }
 
 /*

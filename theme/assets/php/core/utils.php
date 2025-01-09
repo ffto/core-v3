@@ -940,6 +940,16 @@ function _extend (){
  * list($i, $v) = _extract(['$key'=>'cool', 1,2,3]);
  * // $i = cool
  * // $v = [1,2,3]
+ * 
+ * list($key, $group, $value) = _extract([
+ * 	'$key'   => 'person-id',
+ * 	'$group' => ['name'=>'Group Name'],
+ * 	'name'   => 'Mark',
+ * 	'age'    => 123
+ * ], '$key,$group');
+ * // $key = "person-id";
+ * // $group = ['name'=>'Group Name'];
+ * // $value = ['name'=>'Mark', 'age'=>123];
  * ```
  * 
  * @param mixed $v

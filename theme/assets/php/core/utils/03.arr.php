@@ -871,44 +871,333 @@ function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback
 /* =====================================================================================================================
 Casting
 ===================================================================================================================== */
-function ffto_arr_to_columns ($arr, $count=2, $args=null){
-	if (!$count) return [];
+/**
+ * Undocumented function
+ *
+ * ```php
+ * ffto_arr_to_group($people, 'gender');
+ * // [
+ * //     "male" => [
+ * //         [
+ * //             "name" => "John Doe",
+ * //             "age" => 28,
+ * //             ...
+ * //         ],
+ * //		  ...
+ * //     "female" => [
+ * //         [
+ * //             "name" => "Jane Smith",
+ * //             "age" => 32,
+ * // 			  ...
+ * //         ],
+ * // 		  ...
+ * // 	  ...
+ * // ]
+ * 
+ * ffto_arr_to_group($people, function ($v){
+ * 	$tags = _get($v, 'tags', []);
+ * 	return array_map(function ($vv) use ($v){
+ * 		return [
+ * 			'$key'   => $vv,
+ * 			'$value' => $v['name'],
+ * 		];
+ * 	}, $tags);
+ * });
+ * // [
+ * //     "a" => [
+ * //         "John Doe",
+ * //         "Lisa Brown",
+ * //         "Chris Green",
+ * //         "David Blue",
+ * //         "Finish",
+ * //         "Pat",
+ * //         "Julia"
+ * //     ],
+ * //     "b" => [
+ * //         "John Doe",
+ * //         "Sam Johnson",
+ * //         "Chris Green",
+ * //         "Anna White",
+ * //         "Emma Gray 2",
+ * //         "David Blue",
+ * //         "Sophia Red",
+ * //         "Finish",
+ * //         "Pat"
+ * //     ],
+ * //     "c" => [
+ * //         "Jane Smith",
+ * //         "Chris Green",
+ * //         "Emma Gray 2",
+ * //         "David Blue"
+ * //     ],
+ * //     "d" => [
+ * //         "Lisa Brown",
+ * //         "Paul Black",
+ * //         "Emma Gray"
+ * //     ]
+ * // ]
+ * 
+ * $v = ffto_arr_to_group($people, function ($v){
+ * 	$age       = _get($v, 'age');
+ * 	$age_group = is_numeric($age) ? floor($age / 10)*10 : $age;
+ * 	return [
+ * 		'$key'   => $age_group,
+ * 		'$value' => $v['name'],
+ * 		'$group' => [
+ * 			'label' => $age_group ? "Age group of {$age_group} years old" : 'Unknown age group',
+ * 		],
+ * 	];
+ * });
+ * // [
+ * //     "20" => [
+ * //         "label" => "Age group of 20 years old",
+ * //         "children" => [
+ * //             "John Doe",
+ * //             "Sam Johnson",
+ * //             "Anna White",
+ * //             "Emma Gray 2",
+ * //             "Sophia Red",
+ * //             "Pat"
+ * //         ]
+ * //     ],
+ * //     "30" => [
+ * //         "label" => "Age group of 30 years old",
+ * //         "children" => [
+ * //             "Jane Smith",
+ * //             "Chris Green",
+ * //             "Paul Black",
+ * //             "Julia"
+ * //         ]
+ * //     ],
+ * //     "40" => [
+ * //         "label" => "Age group of 40 years old",
+ * //         "children" => [
+ * //             "David Blue"
+ * //         ]
+ * //     ],
+ * //     "" => [
+ * //         "label" => "Unknown age group",
+ * //         "children" => [
+ * //             "Lisa Brown",
+ * //             "Emma Gray",
+ * //             "Finish"
+ * //         ]
+ * //     ]
+ * // ]
+ * ```
+ * 
+ * @param [type] $arr
+ * @param [type] $args
+ * @return void
+ */
+function ffto_arr_to_group ($arr, $args=null){
+	if (empty($arr)) return [];
+
+	// [ ] Put "null" key BEFORE or AFTER
+	// [ ] Order by?
 
 	$args = _args($args, [
-		'callback' => null,
-	]);
+		'key'          => null,
+		'children_key' => 'children',
+		'null_key'	   => null,
+	], 'key');
 
+	$key 	= $args['key'];
+	$format = ffto_is_callback($key) ? $key : null;
+
+	$group 	= null;
+	$groups = [];
+	foreach ($arr as $v){
+		$_groups = null;
+
+		// find the KEY/GROUP. If the format function exists, it can return a string or an object that contains: ['$key'=>'...', '$group'=>'', '$value'=>'']
+		if ($format){
+			$_groups = _apply($format, $v);			
+		}else if ($key){
+			$_groups = _get($v, $key);
+		}
+
+		$_groups = ffto_is_list($_groups) ? $_groups : [$_groups];
+		foreach ($_groups as $vv){
+			$_key   = null;
+			$_group = $vv;
+			$_item  = $v;
+
+			// Find the key and group item 
+			if (is_array($vv)){
+				list($_key, $_group, $vv) = _extract($vv, '$key, $group');
+
+				$_key 	= $_key ? $_key : _get($_group, '$key');
+				$_group = isset($groups[$_key]) ? $groups[$_key] : $_group;
+				$_item  = $vv ? $vv : $_item;
+			}else{
+				$_key 	= $vv;
+				$_group = isset($groups[$vv]) ? $groups[$vv] : [];
+			}
+
+			// Set a NULL key
+			if ($_key === null){
+				$_key = $args['null_key'];
+			}
+
+			// The group is an array object
+			if (ffto_is_obj($_group)){
+				$k = $args['children_key'];
+
+				// make sure the "children" key exists
+				if (!isset($_group[$k])){
+					$_group[$k] = [];
+				}
+
+				$_group[$k][] = $_item;
+			// The group is just a list of children
+			}else{
+				$_group[] = $_item;
+			}
+
+			$groups[$_key] = $_group;
+		}
+	}
+
+	// put the NULL items at the end by default
+	$k = $args['null_key'];
+	if (isset($groups[$k])){
+		$null = $groups[$k];
+		unset($groups[$k]);
+		$groups[$k] = $null;
+	}
 
 	/*
-	$values = array();
-	$total  = 0;
+	$args = _args($args, array(
+		'group_key'     => 'id',
+		'child_key'     => 'children',
+		'index_key'		=> 'index',
+		'null_key'      => -1,
+		'skip_ids'      => array(),
+		'sort'          => false,
+		'sort_children' => false,
+		'return'        => '',
+	));
 
-	// use a callback function to decode how we can decide in which column the item would be. Generally by calculating the about of characters there is
-	if (ffto_is_callback($callback)){
-		$total = 0;
-		foreach ($arr as $v){
-			$values[]  = $total;
-			$value     = ffto_apply($callback, array($v));
-			$total 	  += $value;
-		}
-	}else{
-		$values = array_keys($arr);
-		$total  = count($arr);
-	}
+	$groups       = array();
+	$pack_groups  = array(); // when the group_id change, then we change packs
+	$last_pack_id = null;
+	$current_pack = null;
 
-	$columns = array();
-	$total   = $total / $count;
+	$skip_ids	  = ffto_to_array($args['skip_ids']);
+	$group_key    = $args['group_key'];
+	$child_key    = $args['child_key'];
+
 	foreach ($arr as $i=>$item){
-		$value = floor($values[$i] / $total);
-		$index = $value % $count;
 
-		if (!isset($columns[$index])){
-			$columns[$index] = array();
+		// add the index to the item (if it's an object/array)
+		if ($args['index_key']){
+			$item = _set($item, $args['index_key'], $i);
 		}
 
-		$columns[$index][] = $item;
+		$group     = null;
+		$group_ids = _get($item, $key);
+
+		if (!ffto_arr_is_list($group_ids)){
+			$group_ids = array($group_ids);
+		}
+		
+		foreach ($group_ids as $ii => $group_id){
+			$group = null;
+			
+			// the group_id returns an object with the ID inside, use this for the group
+			if (ffto_arr_is_obj($group_id)){
+				$group    = $group_id;
+				$group_id = _get($group_id, 'id,$id');
+				unset($group['$id']);
+			}
+
+			$group_id = $group_id === null ? $args['null_key'] : $group_id;
+			$group    = isset($groups[$group_id]) ? $groups[$group_id] : $group;
+			
+			if ($group_id === false){
+				continue;
+			}
+
+			if (in_array($group_id, $skip_ids)){
+				continue;
+			}
+
+			// create group --------------------------------------------------------
+			if (!$group){
+				$group = ffto_is_callback($args['create']) ? $args['create']($item, $group_id, $ii) : array();
+			}
+
+			// re-format the item to be added as a children
+			$item = _apply($args['format'], $item, $group);
+
+			// make sure the "group_key" and "child_key" keys are set
+			if (!isset($group[$group_key])){
+				$group[$group_key] = $group_id;
+			}
+
+			if (!isset($group[$child_key])){
+				$group[$child_key] = array();
+			}
+
+			// if it's a clone of the main item
+			$item = $ii ? clone $item : $item;
+			_set($item, '_index', $i);
+			_set($item, '_clone', $ii > 0);
+
+			$group[$child_key][]  = $item;
+			$groups[$group_id] 	  = $group;
+
+			// pack groups ---------------------------------------------------------
+			// (group only when the previous item is the same)
+
+			// current pack is finished
+			if ($group_id !== $last_pack_id && $current_pack){
+				$pack_groups[] = $current_pack;
+				$current_pack  = null;
+			}
+
+			if (!$current_pack){
+				$current_pack = ffto_is_callback($args['create']) ? $args['create']($item, $group_id, $ii) : null;
+
+				if ($current_pack === null){
+					$current_pack             = $group;
+					$current_pack['children'] = [];
+				}
+
+				// make sure the "group_key" and "child_key" keys are set
+				if (!isset($current_pack[$group_key])){
+					$current_pack[$group_key] = $group_id;
+				}
+				if (!isset($current_pack[$child_key])){
+					$current_pack[$child_key] = array();
+				}
+			}
+
+			$last_pack_id 				= $group_id;
+			$current_pack[$child_key][] = $item;
+		}
 	}
 
-	return $columns;
+	if ($current_pack){
+		$pack_groups[] = $current_pack;
+	}
+
+	if ($args['return'] === 'array'){
+		$groups = array_values($groups);
+	}else if ($args['return'] === 'pack'){
+		$groups = $pack_groups;
+	}
+
+	if ($args['sort']){
+		$groups = ffto_array_sort($groups, $args['sort']);
+	}
+	if ($args['sort_children']){
+		foreach ($groups as &$group){
+			$group['children'] = ffto_array_sort($group['children'], $args['sort_children']);
+		}
+	}
+
 	*/
+	return $groups;
 }

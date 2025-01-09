@@ -33,21 +33,45 @@ $i = null;
 $v = null;
 
 $people = [
-    ['name' => 'John Doe', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234'],
-    ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678'],
-    ['name' => 'Sam Johnson', 'age' => 24, 'gender' => 'male', 'phone' => '555-8765'],
-    ['name' => 'Lisa Brown', 'gender' => 'female', 'phone' => '555-3456'],
-    ['name' => 'Chris Green', 'age' => 35, 'gender' => 'two-spirit', 'phone' => '555-9876'],
-    ['name' => 'Anna White', 'age' => 22, 'gender' => 'female', 'phone' => '555-5432'],
-    ['name' => 'Paul Black', 'age' => 31, 'gender' => 'male', 'phone' => '555-6543'],
-    ['name' => 'Emma Gray', 'gender' => 'female', 'phone' => '555-4321'],
-    ['name' => 'Emma Gray 2', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321'],
-    ['name' => 'David Blue', 'age' => 40, 'gender' => 'male', 'phone' => '555-8761'],
-    ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345'],
-    ['name' => 'Finish', 'gender' => 'two-spirit', 'phone' => '555-2345'],
-    ['name' => 'Pat', 'age' => 29, 'gender' => 'nonbinary', 'phone' => '555-2345'],
-    ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345'],
+    ['name' => 'John Doe', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234', 'tags'=>['a','b']],
+    ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678', 'tags'=>['c']],
+    ['name' => 'Sam Johnson', 'age' => 24, 'gender' => 'male', 'phone' => '555-8765', 'tags'=>['b']],
+    ['name' => 'Lisa Brown', 'gender' => 'female', 'phone' => '555-3456', 'tags'=>['a','d']],
+    ['name' => 'Chris Green', 'age' => 35, 'gender' => 'two-spirit', 'phone' => '555-9876', 'tags'=>['a','b','c']],
+    ['name' => 'Anna White', 'age' => 22, 'gender' => 'female', 'phone' => '555-5432', 'tags'=>['b']],
+    ['name' => 'Paul Black', 'age' => 31, 'gender' => 'male', 'phone' => '555-6543', 'tags'=>['d']],
+    ['name' => 'Emma Gray', 'gender' => 'female', 'phone' => '555-4321', 'tags'=>['d']],
+    ['name' => 'Emma Gray 2', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321', 'tags'=>['b','c']],
+    ['name' => 'David Blue', 'age' => 40, 'gender' => 'male', 'phone' => '555-8761', 'tags'=>['a','b','c']],
+    ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345', 'tags'=>['b']],
+    ['name' => 'Finish', 'gender' => 'two-spirit', 'phone' => '555-2345', 'tags'=>['a','b']],
+    ['name' => 'Pat', 'age' => 29, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a','b']],
+    ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a']],
 ];
+
+// $v = ffto_arr_to_group($people, 'gender');
+
+// $v = ffto_arr_to_group($people, function ($v){
+// 	$tags = _get($v, 'tags', []);
+// 	return array_map(function ($vv) use ($v){
+// 		return [
+// 			'$key'   => $vv,
+// 			'$value' => $v['name'],
+// 		];
+// 	}, $tags);
+// });
+
+$v = ffto_arr_to_group($people, function ($v){
+	$age       = _get($v, 'age');
+	$age_group = is_numeric($age) ? floor($age / 10)*10 : $age;
+	return [
+		'$key'   => $age_group,
+		'$value' => $v['name'],
+		'$group' => [
+			'label' => $age_group ? "Age group of {$age_group} years old" : 'Unknown age group',
+		],
+	];
+});
 
 
 echo '<pre>';

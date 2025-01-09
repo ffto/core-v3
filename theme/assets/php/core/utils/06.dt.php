@@ -15,14 +15,21 @@
  * 	- :utc 				= 'Y-m-d H:i:s'
  * 	- :utc-date 		= 'Y-m-d'
  * 	- :utc-time 		= 'H:i:s'
- * 	- :time-ago
+ * 	- :time-ago			= no formats, return a special time-ago text
  * 	- :full 			= 'Y-m-d H:i:s';
  * 	- :date				= 'Y-m-d'
  * 	- :date-compact		= 'Ymd'
  * 	- :date-text		= 'F j, Y'
  * 	- :time				= 'H:i:s'
  * 	- :time-text		= 'g:i a'
- * 	- :atom				= 'Y-m-d\\TH:i:sP' * 
+ * 	- :atom				= 'Y-m-d\\TH:i:sP' 
+ * 	- :atom-micro		= 'Y-m-d\TH:i:s.uP'
+ *  - :micro			= 'Y-m-d H:i:s.u'
+ *  - ::full			= 'Y-m-d H:i:s'; 	(won't be using a translated version)
+ * 	- ::date			= 'Y-m-d' 			(won't be using a translated version)
+ * 	- ::date-compact	= 'Ymd' 			(won't be using a translated version)
+ *  - ::time			= 'H:i:s' 			(won't be using a translated version)
+ *  
  * - An array with special keys (keys are separated by commas: ","):
  * - '*'            = default
  * - 'time'         = has time specified
@@ -286,6 +293,18 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 		$value = $date->format('H:i:s');
 	}else if ($format === ':atom' || $format === ':iso'){
 		$value = $date->format(DateTime::ATOM);
+	}else if ($format === ':atom-micro' || $format === ':iso-micro'){
+		$value = $date->format('Y-m-d\TH:i:s.uP');
+	}else if ($format === ':micro'){
+		$value = $date->format('Y-m-d H:i:s.u');	
+	}else if ($format === '::full'){
+		$value = $date->format('Y-m-d H:i:s');
+	}else if ($format === '::date'){
+		$value = $date->format('Y-m-d');
+	}else if ($format === '::date-compact'){
+		$value = $date->format('Ymd');
+	}else if ($format === '::time'){
+		$value = $date->format('H:i:s');
 	}else if ($format === ':time-ago'){
 		// TODO translating these strings, maybe __t() would be perfect, something like __t('second', 'ctx=date')
 		$_time_ago = _args($args['time_ago']);
@@ -1108,16 +1127,21 @@ function ffto_to_dates ($dates, $args=null, $return=null){
 		$dt = ffto_to_daterange($dt, null, $args, true);
 		if (!$dt) continue;
 
-		$s        = _get($dt, 'start');
-		$e        = _get($dt, 'end', $s);
-		$start    = max($start, $s);
-		$end      = max($end, $e);
-		$_dates[] = $dt;
+		$s            = _get($dt, 'start');
+		$e            = _get($dt, 'end', $s);
+		$start        = max($start, $s);
+		$end          = max($end, $e);
+		$key          = $s->format('Y-m-d H:i:s');
+		$_dates[$key] = $dt;
 	}
 	
-	// [ ] Orderby $_dates
+	// order the dates
+	ksort($_dates);
+	$_dates = array_values($_dates);
 	
-	p($_dates);
+	// format/text version
+
+	return $_dates;
 }
 
 /*

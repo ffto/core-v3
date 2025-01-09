@@ -64,13 +64,7 @@ $pages = [
 
 // $v = ffto_arr_to_tree($pages, 'parent_id -> id', 'name', true);
 
-$v = ffto_arr_to_tree($pages, 'parent_id -> id', function ($vv, $a){
-	if ($a['depth'] > 0) return false;
-
-	return [
-		'name' => $vv['name'],
-	];
-});
+$v = ffto_to_daterange('2024-12-05', '2025-10-05 10pm', 'time_format=`time ->` h:i', 'text');
 
 
 echo '<pre>';

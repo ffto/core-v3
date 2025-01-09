@@ -372,6 +372,8 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 			// TODO
 		// transfrom the default format symbols to ICU 
 		}else if (!$args['type'] || $args['type'] === 'date'){
+			$is_en = $lang ? preg_match('/^en/i', $lang) : true; // is English, used in some cases for the format values
+
 			$symbols = [
 				// Day
 				'd' => 'dd',            // 01 to 31
@@ -390,8 +392,8 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 				'y' => 'yy',            // Examples: 99 or 03
 				'Y' => 'yyyy',          // Examples: -0055, 0787, 1999, 2003, 10191
 				// Time
-				'a' => 'aa',  // am or pm
-				// 'a' => '{lower:aa}',  // am or pm
+				'a' => 'aa',  			// am or pm
+				// 'a' => '{lower:aa}', // am or pm
 				'A' => 'aa',            // AM or PM
 				'h' => 'hh',            // 01 through 12
 				'H' => 'HH',            // 00 through 23
@@ -401,6 +403,8 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 				's' => 'ss',            // 00 through 59
 				'u' => 'S',             // Example: 654321
 				'e' => 'V',             // Examples: UTC, GMT, Atlantic/Azores
+				'P' => '{date:P}',		// Difference to Greenwich time
+				'S' => $is_en ? '{date:S}' : '', // Example: "st, nd, rd or th", only available in E
 			];
 		}
 
@@ -451,6 +455,8 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 				$i     = $date->format('N') - 1;
 				$value = $date->format('D');
 				$value = _get($weeks_short, $i, $value);
+			}else if ($prefix === 'date'){
+				$value = $date->format($value);
 			}
 
 			return $_encode($value);
@@ -581,8 +587,8 @@ function ffto_to_date ($date=null, $args=null, $return=null){
  * ffto_to_daterange('2024-12-05', '2025-10-05 10pm', 'Y.m.d', 'text');
  * // "2024.12.05 to 2025.10.05, 10 PM"
  * 
- * ffto_to_daterange('2024-12-05', '2025-10-05 10pm', 'time_format=`time => ` h:i', 'text');
- * // "December 5, 2024 to October 5, 2025, 10 PM"
+ * ffto_to_daterange('2024-12-05', '2025-10-05 10pm', 'time_format=`time ->` h:i', 'text');
+ * // "December 5, 2024 to October 5, 2025, time -> 10:00"
  * 
  * ffto_to_daterange([
  * 	'start' => '2024-12-05',
@@ -743,24 +749,29 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	$is_same_meridiem = $has_start_time && $has_end_time ? $_start->format('a') === $_end->format('a') : false;
 
 	// html ------------------------------------------------------------------------------------------------------------
-	$alias = $args['alias'];
+	$alias     = $args['alias'];
+	$templates = _get($args, 'template || templates', []);
 
-	$templates = _get($args, 'template, templates', []);
-	$templates = _args($templates, [
-		'*'        => __tx('datetime/template', '{start} to {end}'),        // fr: '{start} au {end}'
-		'time'     => __tx('datetime/template-time', '{start} to {end}'),   // fr: '{start} à {end}'
-		'single'   => __tx('datetime/template-single', '{start}'),          // fr: '{start}'
-		'datetime' => __tx('datetime/template-join', '{date}, {time}'),     // fr: '{date}, {time}'
-	], '*');
-
+	if (is_array($templates)){
+		$templates = _args($templates, [
+			'*'        => __tx('date/template', '{start} to {end}'),        // fr: '{start} au {end}'
+			'time'     => __tx('date/template:time', '{start} to {end}'),   // fr: '{start} à {end}'
+			'single'   => __tx('date/template:single', '{start}'),          // fr: '{start}'
+			'datetime' => __tx('date/template:join', '{date}, {time}'),     // fr: '{date}, {time}'
+		], '*');
+	}
+	
 	// html:date ---------------------------------------------------------------
-	$format = _args($args['format'], [
-		'*'                => __tx('datetime/format', 'F j, Y'),	// fr: 'j F Y'
-		'same-month-start' => __tx('datetime/format', 'F j'),		// fr: 'j'
-		'same-month-end'   => __tx('datetime/format', 'j, Y'),		// fr: 'j F Y'
-		'same-year-start'  => __tx('datetime/format', 'F j'),		// fr: 'j F'
-		'same-year-end'    => __tx('datetime/format', 'F j, Y'),	// fr: 'j F Y'
-	], '*');
+	$format = $args['format'] ? $args['format'] : [];
+	if (is_array($format)){
+		$format = _args($format, [
+			'*'                => __tx('date/format:text', 'F j, Y'),                 // fr: 'j F Y'
+			'same-month-start' => __tx('date/format:text-same-month-start', 'F j'),   // fr: 'j'
+			'same-month-end'   => __tx('date/format:text-same-month-end', 'j, Y'),    // fr: 'j F Y'
+			'same-year-start'  => __tx('date/format:text-same-year-start', 'F j'),    // fr: 'j F'
+			'same-year-end'    => __tx('date/format:text-same-year-end', 'F j, Y'),   // fr: 'j F Y'
+		], '*');
+	}
 
 	$start_html = null;
 	$end_html   = null;
@@ -828,17 +839,19 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	}	
 
 	// html:time ---------------------------------------------------------------
-	$time_format = $args['time_format'] === null || $args['time_format'] === true ? ':time-text' : $args['time_format'];
-	$time_format = _args($time_format, [
-		'*'                          => __tx('datetime/format', 'g:i a'),	// fr: 'G \h i'
-		'short'                      => __tx('datetime/format', 'g a'),		// fr: 'G \h'
-		'same-meridiem-start'        => __tx('datetime/format', 'g:i'),		// fr: 'G \h i'
-		'short, same-meridiem-start' => __tx('datetime/format', 'g'),		// fr: 'G \h'
-	], '*');
+	$time_format = $args['time_format'] === null || $args['time_format'] === true ? [] : $args['time_format'];
+	if (is_array($time_format)){
+		$time_format = _args($time_format, [
+			'*'                          => ':time-text',                                              // fr: 'G \h i'
+			'short'                      => __tx('date/format:time-short-text', 'g a'),                // fr: 'G \h'
+			'same-meridiem-start'        => __tx('date/format:time-same-meridiem-start', 'g:i'),       // fr: 'G \h i'
+			'short, same-meridiem-start' => __tx('date/format:short_time-same-meridiem-start', 'g'),   // fr: 'G \h'
+		]);
+	}
 
-	$start_time_html = null;
-	$end_time_html   = null;
-	$time_html 		 = null;
+	$start_time_html = '';
+	$end_time_html   = '';
+	$time_html 		 = '';
 
 	if ($time_format){
 		$start_time_format = $has_start_time ? ffto_to_conditional_format($_start, $time_format, [
@@ -856,18 +869,18 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 			'same-meridiem'     => $is_same_meridiem,
 			'same-meridiem-end' => $is_same_meridiem,
 		], 'date/time_formats') : null;
-
+		
 		$start_time_html = $start_time_format ? ffto_to_date($_start, [
 			'format'      => $start_time_format,
 			'wrap'        => ".{$alias}__time-start",
 			'attr_format' => ':time'
-		]) : null;
+		]) : '';
 
 		$end_time_html = $end_time_format ? ffto_to_date($_end, [
 			'format'      => $end_time_format,
 			'wrap'        => ".{$alias}__time-end",
 			'attr_format' => ':time'
-		]) : null;
+		]) : '';
 
 		// inverse the times, if the end exists but not the start
 		$s_html = $start_time_html;

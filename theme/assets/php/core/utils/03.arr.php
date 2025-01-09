@@ -1385,7 +1385,9 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
 }
 
 /**
- * Undocumented function
+ * Return a tree multi-dimension array of a flat array. 
+ * 
+ * @since 2025-01-09
  * 
  * ```php
  * $pages = [
@@ -1483,7 +1485,7 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
  * // ]
  * 
  * 
- * ffto_arr_to_tree($pages, 'parent_id -> id', function ($vv, $a){
+ * ffto_arr_to_tree($pages, function ($vv, $a){
  * 	if ($a['depth'] > 0) return false;
  * 
  * 	return [
@@ -1506,6 +1508,51 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
  * //     [
  * //         "name" => "Contact",
  * //         "children" => []
+ * //     ]
+ * // ]
+ * 
+ * ffto_arr_to_tree($pages, function ($vv, $a){	
+ * 	return ['name'=>$vv['name']];
+ * }, function ($vv, $a){
+ * 	if (!$vv['children']) unset($vv['children']);
+ * 	return $vv;
+ * });
+ * // [
+ * //     [
+ * //         "name" => "Home"
+ * //     ],
+ * //     [
+ * //         "name" => "About Us",
+ * //         "children" => [
+ * //             [
+ * //                 "name" => "Our Team",
+ * //                 "children" => [
+ * //                     [
+ * //                         "name" => "Meet the CEO"
+ * //                     ]
+ * //                 ]
+ * //             ]
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "name" => "Services",
+ * //         "children" => [
+ * //             [
+ * //                 "name" => "Web Design"
+ * //             ],
+ * //             [
+ * //                 "name" => "Web Development"
+ * //             ],
+ * //             [
+ * //                 "name" => "SEO"
+ * //             ],
+ * //             [
+ * //                 "name" => "Case Studies"
+ * //             ]
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "name" => "Contact"
  * //     ]
  * // ]
  * ```
@@ -1538,8 +1585,9 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 
 	$pluck = null;
 	if (is_string($pre_callback)){
-		$pluck        = $pre_callback;
-		$pre_callback = null;
+		$pluck         = $pre_callback;
+		$pre_callback  = null;
+		$post_callback = null;
 	}
 
 	$args = _args($args, [
@@ -1587,13 +1635,12 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 	}
 
 	$flatten = [];
-	$_walk   = function ($parent_key, $depth, $_walk) use ($parents, $children, $args, &$flatten){
+	$_walk   = function ($parent_key, $depth, $_walk) use ($args, $parents, &$children, &$flatten){
 		$parent = [];
 		$keys   = _get($parents, $parent_key, []);
 
 		foreach ($keys as $k){
 			$item = _get($children, $k);
-
 			$item = _apply($args['pre_callback'], $item, [
 				'key'        => $k,
 				'parent_key' => $parent_key,
@@ -1601,11 +1648,11 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 			]);
 
 			if (!$item) continue;
-
 			$flatten[] = $item;
 
-			$_k        = $args['children_key'];
-			$item[$_k] = $_walk($k, $depth + 1, $_walk);
+			$_key         = $args['children_key'];
+			$_children    = $_walk($k, $depth + 1, $_walk);
+			$item[$_key]  = $_children;
 			
 			$item = _apply($args['post_callback'], $item, [
 				'key'        => $k,

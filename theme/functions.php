@@ -49,22 +49,24 @@ $people = [
     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a']],
 ];
 
-$data = [
-	['layout'=>'side', 'name'=>'Side 1'],
-	['layout'=>'side', 'name'=>'Side 2'],
-	['layout'=>'main', 'name'=>'Main 1'],
-	['layout'=>'main', 'name'=>'Main 2'],
-	['layout'=>'side', 'name'=>'Side 3'],
-	['layout'=>'main', 'name'=>'Main 3'],
-	['layout'=>'foot', 'name'=>'Foot 1'],
-	['layout'=>'main', 'name'=>'Main 4'],
-	['layout'=>'main', 'name'=>'Main 4.2'],
-	['layout'=>'main', 'name'=>'Main 4.3'],
-	['layout'=>'side', 'name'=>'Side 4'],
-	['layout'=>'main', 'name'=>'Main 5'],
-	['layout'=>'side', 'name'=>'Side 5'],
-	['layout'=>'foot', 'name'=>'Foot 2'],
+$pages = [
+	['id' => 1, 'name' => 'Home', 'parent_id' => 0],
+	['id' => 2, 'name' => 'About Us', 'parent_id' => 0],
+	['id' => 3, 'name' => 'Services', 'parent_id' => 0],
+	['id' => 4, 'name' => 'Contact', 'parent_id' => 0],
+	['id' => 5, 'name' => 'Our Team', 'parent_id' => 2],
+	['id' => 6, 'name' => 'Web Design', 'parent_id' => 3],
+	['id' => 7, 'name' => 'Web Development', 'parent_id' => 3],
+	['id' => 8, 'name' => 'SEO', 'parent_id' => 3],
+	['id' => 9, 'name' => 'Meet the CEO', 'parent_id' => 5],
+	['id' => 10, 'name' => 'Case Studies', 'parent_id' => 3],
 ];
+
+$v = ffto_arr_to_tree($pages, 'parent_id -> id', function ($vv){
+	return [
+		'name' => $vv['name'],
+	];
+}, true);
 
 
 echo '<pre>';
@@ -75,8 +77,6 @@ echo NL . NL;
 	echo '<br><br>---------<br><br>';
 	
 	echo _string($v, 'pretty=php', ','.NL);
-	// echo NL.NL;
-	// echo _string($v, null, ','.NL);
 	
 	echo '<br><br>---------<br><br>' . NL;
 

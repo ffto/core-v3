@@ -1384,6 +1384,80 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
 	return $groups;
 }
 
-function ffto_arr_to_tree ($arr, $args=null){
+function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=null){
+	if (ffto_is_callback($args)){
+		$post_callback = $pre_callback;
+		$pre_callback  = $args;
+		$args          = null;
+	}
+
+	$flatten = false;
+	if ($pre_callback === true || $post_callback === true){
+		$flatten = true;
+	}
+
+	$args = _args($args, [
+		'key'           => 'id',
+		'parent_key'    => 'parent_id',
+		'root_key'		=> 0,
+		'children_key'	=> 'children',
+		'pre_callback'  => $pre_callback,
+		'post_callback' => $post_callback,
+		'flatten'		=> $flatten,
+	], 'parent_key');
+
+	// [ ] Add key/path separator
+
+	// Alias to pre_callback
+	if (isset($args['callback'])){
+		$args['pre_callback'] = $args['callback'];
+	}
+
+	// Shortcut, if the "parent_key" has a "->", if means both the "parent_key" and the "key"
+	if (ffto_is_str($args['parent_key'], '->')){
+		$pair               = explode('->', $args['parent_key']);
+		$args['parent_key'] = trim($pair[0]);
+		$args['key']        = trim($pair[1]);
+	}
+
+	$parents  = [];
+	$children = [];
+	foreach ($arr as $i => $v){
+		$_key    = _get($v, $args['key'], $i);
+		$_parent = _get($v, $args['parent_key'], $args['root_key']);
+
+		// Format the item
+		$item = _apply($args['pre_callback'], $v, [
+			'key'        => $_key,
+			'parent_key' => $_parent,
+		]);
+
+		if (!$item) continue;
+
+		$children[$_key]     = $item;
+		$parents[$_parent]   = isset($parents[$_parent]) ? $parents[$_parent] : [];
+		$parents[$_parent][] = $_key;
+	}
+
+	$flatten = [];
+	$_walk   = function ($parent_id, $_walk) use ($parents, $children, $args, &$flatten){
+		$parent = [];
+		$keys   = _get($parents, $parent_id, []);
+
+		foreach ($keys as $k){
+			$item      = _get($children, $k);
+			$flatten[] = $item;
+
+			$_k        = $args['children_key'];
+			$item[$_k] = $_walk($k, $_walk);
+			
+			$parent[]  = $item;
+		}
+
+		return $parent;
+	};
+
+	$tree = $_walk($args['root_key'], $_walk);
 	
+	return $args['flatten'] ? $flatten : $tree;
 }

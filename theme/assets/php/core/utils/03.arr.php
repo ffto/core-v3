@@ -1384,6 +1384,111 @@ function ffto_arr_to_group ($arr, $args=null, $continuous=false){
 	return $groups;
 }
 
+/**
+ * Undocumented function
+ * 
+ * ```php
+ * $pages = [
+ * 	['id' => 1, 'name' => 'Home', 'parent_id' => 0],
+ * 	['id' => 2, 'name' => 'About Us', 'parent_id' => 0],
+ * 	['id' => 3, 'name' => 'Services', 'parent_id' => 0],
+ * 	['id' => 4, 'name' => 'Contact', 'parent_id' => 0],
+ * 	['id' => 5, 'name' => 'Our Team', 'parent_id' => 2],
+ * 	['id' => 6, 'name' => 'Web Design', 'parent_id' => 3],
+ * 	['id' => 7, 'name' => 'Web Development', 'parent_id' => 3],
+ * 	['id' => 8, 'name' => 'SEO', 'parent_id' => 3],
+ * 	['id' => 9, 'name' => 'Meet the CEO', 'parent_id' => 5],
+ * 	['id' => 10, 'name' => 'Case Studies', 'parent_id' => 3],
+ * ];
+ * 
+ * ffto_arr_to_tree($pages, 'parent_id -> id', 'name');
+ * // [
+ * //     [
+ * //         "name" => "Home",
+ * //         "children" => []
+ * //     ],
+ * //     [
+ * //         "name" => "About Us",
+ * //         "children" => [
+ * //             [
+ * //                 "name" => "Our Team",
+ * //                 "children" => [
+ * //                     [
+ * //                         "name" => "Meet the CEO",
+ * //                         "children" => []
+ * //                     ]
+ * //                 ]
+ * //             ]
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "name" => "Services",
+ * //         "children" => [
+ * //             [
+ * //                 "name" => "Web Design",
+ * //                 "children" => []
+ * //             ],
+ * //             [
+ * //                 "name" => "Web Development",
+ * //                 "children" => []
+ * //             ],
+ * //             [
+ * //                 "name" => "SEO",
+ * //                 "children" => []
+ * //             ],
+ * //             [
+ * //                 "name" => "Case Studies",
+ * //                 "children" => []
+ * //             ]
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "name" => "Contact",
+ * //         "children" => []
+ * //     ]
+ * // ]
+ * 
+ * ffto_arr_to_tree($pages, 'parent_id -> id', 'name', true);
+ * // [
+ * //     [
+ * //         "name" => "Home"
+ * //     ],
+ * //     [
+ * //         "name" => "About Us"
+ * //     ],
+ * //     [
+ * //         "name" => "Our Team"
+ * //     ],
+ * //     [
+ * //         "name" => "Meet the CEO"
+ * //     ],
+ * //     [
+ * //         "name" => "Services"
+ * //     ],
+ * //     [
+ * //         "name" => "Web Design"
+ * //     ],
+ * //     [
+ * //         "name" => "Web Development"
+ * //     ],
+ * //     [
+ * //         "name" => "SEO"
+ * //     ],
+ * //     ['
+ * //         "name" => "Case Studies"
+ * //     ],
+ * //     [
+ * //         "name" => "Contact"
+ * //     ]
+ * // ]
+ * ```
+ *
+ * @param [type] $arr
+ * @param [type] $args
+ * @param [type] $pre_callback
+ * @param [type] $post_callback
+ * @return void
+ */
 function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=null){
 	if (ffto_is_callback($args)){
 		$post_callback = $pre_callback;
@@ -1396,11 +1501,18 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 		$flatten = true;
 	}
 
+	$pluck = null;
+	if (is_string($pre_callback)){
+		$pluck        = $pre_callback;
+		$pre_callback = null;
+	}
+
 	$args = _args($args, [
 		'key'           => 'id',
 		'parent_key'    => 'parent_id',
 		'root_key'		=> 0,
 		'children_key'	=> 'children',
+		'pluck'			=> $pluck,
 		'pre_callback'  => $pre_callback,
 		'post_callback' => $post_callback,
 		'flatten'		=> $flatten,
@@ -1426,11 +1538,17 @@ function ffto_arr_to_tree ($arr, $args=null, $pre_callback=null, $post_callback=
 		$_key    = _get($v, $args['key'], $i);
 		$_parent = _get($v, $args['parent_key'], $args['root_key']);
 
+		// Pluck certain keys
+		if ($p = $args['pluck']){
+			$p    = _array($p);
+			$item = _each([$v], ['single'=>true, 'return'=>$p]);
 		// Format the item
-		$item = _apply($args['pre_callback'], $v, [
-			'key'        => $_key,
-			'parent_key' => $_parent,
-		]);
+		}else{
+			$item = _apply($args['pre_callback'], $v, [
+				'key'        => $_key,
+				'parent_key' => $_parent,
+			]);
+		}
 
 		if (!$item) continue;
 

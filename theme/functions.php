@@ -49,6 +49,23 @@ $people = [
     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a']],
 ];
 
+$data = [
+	['layout'=>'side', 'name'=>'Side 1'],
+	['layout'=>'side', 'name'=>'Side 2'],
+	['layout'=>'main', 'name'=>'Main 1'],
+	['layout'=>'main', 'name'=>'Main 2'],
+	['layout'=>'side', 'name'=>'Side 3'],
+	['layout'=>'main', 'name'=>'Main 3'],
+	['layout'=>'foot', 'name'=>'Foot 1'],
+	['layout'=>'main', 'name'=>'Main 4'],
+	['layout'=>'main', 'name'=>'Main 4.2'],
+	['layout'=>'main', 'name'=>'Main 4.3'],
+	['layout'=>'side', 'name'=>'Side 4'],
+	['layout'=>'main', 'name'=>'Main 5'],
+	['layout'=>'side', 'name'=>'Side 5'],
+	['layout'=>'foot', 'name'=>'Foot 2'],
+];
+
 // $v = ffto_arr_to_group($people, 'gender');
 
 // $v = ffto_arr_to_group($people, function ($v){
@@ -61,17 +78,28 @@ $people = [
 // 	}, $tags);
 // });
 
-$v = ffto_arr_to_group($people, function ($v){
-	$age       = _get($v, 'age');
-	$age_group = is_numeric($age) ? floor($age / 10)*10 : $age;
-	return [
-		'$key'   => $age_group,
-		'$value' => $v['name'],
-		'$group' => [
-			'label' => $age_group ? "Age group of {$age_group} years old" : 'Unknown age group',
-		],
-	];
-});
+// $v = ffto_arr_to_group($people, function ($v){
+// 	$age       = _get($v, 'age');
+// 	$age_group = is_numeric($age) ? floor($age / 10)*10 : $age;
+// 	return [
+// 		'$key'   => $age_group,
+// 		'$value' => $v['name'],
+// 		'$group' => [
+// 			'label' => $age_group ? "Age group of {$age_group} years old" : 'Unknown age group',
+// 		],
+// 	];
+// });
+
+$v = ffto_arr_to_group($data, 'layout -> name', ':object');
+
+// $v = ffto_arr_to_group($data, function ($v){
+// 	$l = _get($v, 'layout');
+// 	return [
+// 		// '$key'   => _get($v, 'layout'),
+// 		'$group' => _get($v, 'layout'),
+// 		'$value' => $v['value'],
+// 	];
+// }, true);
 
 
 echo '<pre>';

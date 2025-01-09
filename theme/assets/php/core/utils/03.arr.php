@@ -872,9 +872,28 @@ function ffto_arr_traverse ($arr, $args=null, $pre_callback=null, $post_callback
 Casting
 ===================================================================================================================== */
 /**
- * Undocumented function
+ * Group items either all in their group or continuous groups (anytime there's a new group matched, it create a new sub-groups). 
+ * The grouping can either have a list of it's children, OR the group can be an object with a "children" key where all the children items will be added.
  *
  * ```php
+ * $people = [
+ *     ['name' => 'John Doe', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234', 'tags'=>['a','b']],
+ *     ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678', 'tags'=>['c']],
+ *     ['name' => 'Sam Johnson', 'age' => 24, 'gender' => 'male', 'phone' => '555-8765', 'tags'=>['b']],
+ *     ['name' => 'Lisa Brown', 'gender' => 'female', 'phone' => '555-3456', 'tags'=>['a','d']],
+ *     ['name' => 'Chris Green', 'age' => 35, 'gender' => 'two-spirit', 'phone' => '555-9876', 'tags'=>['a','b','c']],
+ *     ['name' => 'Anna White', 'age' => 22, 'gender' => 'female', 'phone' => '555-5432', 'tags'=>['b']],
+ *     ['name' => 'Paul Black', 'age' => 31, 'gender' => 'male', 'phone' => '555-6543', 'tags'=>['d']],
+ *     ['name' => 'Emma Gray', 'gender' => 'female', 'phone' => '555-4321', 'tags'=>['d']],
+ *     ['name' => 'Emma Gray 2', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321', 'tags'=>['b','c']],
+ *     ['name' => 'David Blue', 'age' => 40, 'gender' => 'male', 'phone' => '555-8761', 'tags'=>['a','b','c']],
+ *     ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345', 'tags'=>['b']],
+ *     ['name' => 'Finish', 'gender' => 'two-spirit', 'phone' => '555-2345', 'tags'=>['a','b']],
+ *     ['name' => 'Pat', 'age' => 29, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a','b']],
+ *     ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a']],
+ * ];
+ * 
+ * // # Group by "gender" key
  * ffto_arr_to_group($people, 'gender');
  * // [
  * //     "male" => [
@@ -894,6 +913,7 @@ Casting
  * // 	  ...
  * // ]
  * 
+ * // # Group by "tags" keys (there's multiple tags)
  * ffto_arr_to_group($people, function ($v){
  * 	$tags = _get($v, 'tags', []);
  * 	return array_map(function ($vv) use ($v){
@@ -937,6 +957,7 @@ Casting
  * //     ]
  * // ]
  * 
+ * // # Group items by age_group (eg.: 10, 20, 30, ...) and return a group object with $label
  * $v = ffto_arr_to_group($people, function ($v){
  * 	$age       = _get($v, 'age');
  * 	$age_group = is_numeric($age) ? floor($age / 10)*10 : $age;
@@ -984,29 +1005,161 @@ Casting
  * //         ]
  * //     ]
  * // ]
+ * 
+ * $data = [
+ * 	['layout'=>'side', 'name'=>'Side 1'],
+ * 	['layout'=>'side', 'name'=>'Side 2'],
+ * 	['layout'=>'main', 'name'=>'Main 1'],
+ * 	['layout'=>'main', 'name'=>'Main 2'],
+ * 	['layout'=>'side', 'name'=>'Side 3'],
+ * 	['layout'=>'main', 'name'=>'Main 3'],
+ * 	['layout'=>'foot', 'name'=>'Foot 1'],
+ * 	['layout'=>'main', 'name'=>'Main 4'],
+ * 	['layout'=>'main', 'name'=>'Main 4.2'],
+ * 	['layout'=>'main', 'name'=>'Main 4.3'],
+ * 	['layout'=>'side', 'name'=>'Side 4'],
+ * 	['layout'=>'main', 'name'=>'Main 5'],
+ * 	['layout'=>'side', 'name'=>'Side 5'],
+ * 	['layout'=>'foot', 'name'=>'Foot 2'],
+ * ];
+ * 
+ * // # Group items by "layout" key, and the items are just the "name" key
+ * ffto_arr_to_group($data, 'layout -> name');
+ * // [
+ * //     "side" => [
+ * //         "Side 1",
+ * //         "Side 2",
+ * //         "Side 3",
+ * //         "Side 4",
+ * //         "Side 5"
+ * //     ],
+ * //     "main" => [
+ * //         "Main 1",
+ * //         "Main 2",
+ * //         "Main 3",
+ * //         "Main 4",
+ * //         "Main 4.2",
+ * //         "Main 4.3",
+ * //         "Main 5"
+ * //     ],
+ * //     "foot" => [
+ * //         "Foot 1",
+ * //         "Foot 2"
+ * //     ]
+ * // ]
+ * 
+ * // # Group items by "layout" key, and the items are just the "name" key. Also, they need to be "continuous" and the group will be an object
+ * ffto_arr_to_group($data, 'layout -> name', ':object');
+ * // [
+ * //     [
+ * //         "group" => "side",
+ * //         "children" => [
+ * //             "Side 1",
+ * //             "Side 2"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "main",
+ * //         "children" => [
+ * //             "Main 1",
+ * //             "Main 2"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "side",
+ * //         "children" => [
+ * //             "Side 3"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "main",
+ * //         "children" => [
+ * //             "Main 3"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "foot",
+ * //         "children" => [
+ * //             "Foot 1"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "main",
+ * //         "children" => [
+ * //             "Main 4",
+ * //             "Main 4.2",
+ * //             "Main 4.3"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "side",
+ * //         "children" => [
+ * //             "Side 4"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "main",
+ * //         "children" => [
+ * //             "Main 5"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "side",
+ * //         "children" => [
+ * //             "Side 5"
+ * //         ]
+ * //     ],
+ * //     [
+ * //         "group" => "foot",
+ * //         "children" => [
+ * //             "Foot 2"
+ * //         ]
+ * //     ]
+ * // ]
  * ```
  * 
- * @param [type] $arr
- * @param [type] $args
- * @return void
+ * @param [array] $arr
+ * @param [object] $args
+ * 	- 'group' [null] The group key property
+ * 	- 'value' [null] The value key property (for formating)
+ * 	- 'object' [false] Always make sure the groups are object, not just array of children
+ *  - 'group_key' ['group'] If the group is an object, this will be the group key 
+ *  - 'null_key' [null] If no key is found, this will be the key
+ *  - 'continuous' [$continuous] Group of continuous items, if there's a different group in between, that will create a new set
+ * @param [boolean|string] $continuous
+ * @return array
  */
-function ffto_arr_to_group ($arr, $args=null){
+function ffto_arr_to_group ($arr, $args=null, $continuous=false){
 	if (empty($arr)) return [];
 
-	// [ ] Put "null" key BEFORE or AFTER
 	// [ ] Order by?
 
 	$args = _args($args, [
-		'key'          => null,
+		'group'        => null,			// The group property
+		'value'        => null,			// The value property (for formating)
+		'object'	   => false,		// Always make sure the groups are object, not just array
 		'children_key' => 'children',
-		'null_key'	   => null,
-	], 'key');
+		'group_key'    => 'group',
+		'null_key'     => null,
+		'continuous'   => $continuous,   // Like packs of items, that aren't interrupted
+	], 'group');
 
-	$key 	= $args['key'];
+	// Shortcut, if the "group" has a "->", if means both the "group" and the "value"
+	if (ffto_is_str($args['group'], '->')){
+		$pair          = explode('->', $args['group']);
+		$args['group'] = trim($pair[0]);
+		$args['value'] = trim($pair[1]);
+	}
+
+	if ($args['continuous'] === ':object'){
+		$args['object'] = true;
+	}
+
+	$key 	= $args['group'];
 	$format = ffto_is_callback($key) ? $key : null;
 
-	$group 	= null;
-	$groups = [];
+	$last_key = null;
+	$groups   = [];
 	foreach ($arr as $v){
 		$_groups = null;
 
@@ -1015,6 +1168,11 @@ function ffto_arr_to_group ($arr, $args=null){
 			$_groups = _apply($format, $v);			
 		}else if ($key){
 			$_groups = _get($v, $key);
+		}
+
+		// Filtering the "value" returned
+		if ($k = $args['value']){
+			$v = _get($v, $k);
 		}
 
 		$_groups = ffto_is_list($_groups) ? $_groups : [$_groups];
@@ -1032,12 +1190,35 @@ function ffto_arr_to_group ($arr, $args=null){
 				$_item  = $vv ? $vv : $_item;
 			}else{
 				$_key 	= $vv;
-				$_group = isset($groups[$vv]) ? $groups[$vv] : [];
+				$_group = isset($groups[$_key]) ? $groups[$_key] : [];
+			}
+
+			// If the group returned is a string, it means when want it to be a object array with the $args["group_key"] key set
+			if ($args['object'] || is_string($_group)){
+				$k = $args['group_key'];
+
+				if (is_string($_group)){
+					$_key   = $_group;
+					$_group = null;
+				}
+				
+				$_group = $_group ? $_group : [$k=>$_key];
 			}
 
 			// Set a NULL key
 			if ($_key === null){
 				$_key = $args['null_key'];
+			}
+
+			$i = $_key;
+			if ($args['continuous']){
+				if ($_key === $last_key){
+					$i = count($groups) - 1;
+				}else{
+					$i = count($groups);
+				}
+
+				$_group = isset($groups[$i]) ? $groups[$i] : $_group;
 			}
 
 			// The group is an array object
@@ -1055,7 +1236,8 @@ function ffto_arr_to_group ($arr, $args=null){
 				$_group[] = $_item;
 			}
 
-			$groups[$_key] = $_group;
+			$groups[$i] = $_group;
+			$last_key   = $_key;
 		}
 	}
 

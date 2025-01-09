@@ -324,7 +324,7 @@ function ffto_is_regexp ($v){
 function ffto_is_args ($str){
 	return is_array($str) || (
 		is_string($str) &&              // needs to be a string
-		strpos($str, '=') !== false &&  // there's no separator
+		(strpos($str, '=') !== false && strpos($str, '=>') === false) &&  // there's no separator
 		strpos($str, 'http') !== 0 &&   // it's an URL 
 		strpos($str, '<') !== 0         // it's html
 	);
@@ -1169,8 +1169,8 @@ function _string ($v, $args=null, $join=', '){
 		$v = 'null';
 	}else if (is_a($v, 'DateTime')){
 		$v = $v->format('Y-m-d H:i:s e');
-	// array of items
-	}else if (ffto_is_list($v)){
+	// array of items (not pretty encoded)
+	}else if (ffto_is_list($v) && !$args['pretty']){
 		$list = [];
 		$refs = [];
 		foreach ($v as $ii => $vv){

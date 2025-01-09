@@ -1108,11 +1108,15 @@ function ffto_to_dates ($dates, $args=null, $return=null){
 		$dt = ffto_to_daterange($dt, null, $args, true);
 		if (!$dt) continue;
 
-		$start    = max($start, $dt['start']);
-		$end      = max($end, $dt['end']);
+		$s        = _get($dt, 'start');
+		$e        = _get($dt, 'end', $s);
+		$start    = max($start, $s);
+		$end      = max($end, $e);
 		$_dates[] = $dt;
 	}
-		
+	
+	// [ ] Orderby $_dates
+	
 	p($_dates);
 }
 

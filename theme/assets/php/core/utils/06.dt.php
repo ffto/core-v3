@@ -341,24 +341,19 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 		// TODO translating these strings, maybe __t() would be perfect, something like __t('second', 'ctx=date')
 		$_time_ago = _args($args['time_ago']);
 		$time_ago  = array_merge([
-			'second' => 'second',
-			'minute' => 'minute',
-			'hour'   => 'hour',
-			'day'    => 'day',
-			'week'   => 'week',
-			'month'  => 'month',
-			'year'   => 'year',
-			'decade' => 'decade',
-			'past'   => '{time} {period} ago',
-			'future' => 'in {time} {period}',
+			'second' => __tx('time-ago', 'second'),
+			'minute' => __tx('time-ago', 'minute'),
+			'hour'   => __tx('time-ago', 'hour'),
+			'day'    => __tx('time-ago', 'day'),
+			'week'   => __tx('time-ago', 'week'),
+			'month'  => __tx('time-ago', 'month'),
+			'year'   => __tx('time-ago', 'year'),
+			'decade' => __tx('time-ago', 'decade'),
+			'past'   => __tx('time-ago/template', '{time} {period} ago'),
+			'future' => __tx('time-ago/template', 'in {time} {period}'),
 		], $_time_ago);
 
-		// $format = __tx('date/format:full',
-
 		$compare   = ffto_to_date($args['compare'], ['format'=>false, 'timezone'=>$date->getTimezone()]);
-
-		// p($compare, $date);
-
 		$lengths   = array(60,60,24,7,4.35,12,10);
 		$past      = $time_ago['past'];
 		$future    = $time_ago['future'];
@@ -383,16 +378,16 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 	}else if (is_string($format)){
 		// TODO have way to translate these shortcuts
 
-		if ($format === ':full')				$format = __tx('date/format:full', 'Y-m-d H:i:s');				// fr: 
-		else if ($format === ':date')			$format = __tx('date/format:date', 'Y-m-d');					// fr: 
-		else if ($format === ':date-compact')	$format = __tx('date/format:date-compact', 'Ymd');				// fr: 
-		else if ($format === ':time')			$format = __tx('date/format:time', 'H:i:s');					// fr: 
-		else if ($format === ':text' && $time)	$format = __tx('date/format:text-time', 'F j, Y g:i a');		// fr: 'j F Y G \h i'
-		else if ($format === ':text')			$format = __tx('date/format:text', 'F j, Y');					// fr: 'j F Y'
-		else if ($format === ':date-text')		$format = __tx('date/format:date-text', 'F j, Y');				// fr: 'j F Y'
-		else if ($format === ':datetime-text')	$format = __tx('date/format:datetime-text', 'F j, Y g:i a');	// fr: 'j F Y G \h i'
-		else if ($format === ':date-numeric')	$format = __tx('date/format:date-numeric', 'm.d.Y');			// fr: 'd.m.Y'
-		else if ($format === ':time-text')		$format = __tx('date/format:time-text', 'g:i a');				// fr: 'G \h i'
+		if ($format === ':full')				$format = __tx('date-format', 'Y-m-d H:i:s');	// fr: 
+		else if ($format === ':date')			$format = __tx('date-format', 'Y-m-d');			// fr: 
+		else if ($format === ':date-compact')	$format = __tx('date-format', 'Ymd');			// fr: 
+		else if ($format === ':time')			$format = __tx('time-format', 'H:i:s');			// fr: 
+		else if ($format === ':text' && $time)	$format = __tx('date-format', 'F j, Y g:i a');	// fr: 'j F Y G \h i'
+		else if ($format === ':text')			$format = __tx('date-format', 'F j, Y');		// fr: 'j F Y'
+		else if ($format === ':date-text')		$format = __tx('date-format', 'F j, Y');		// fr: 'j F Y'
+		else if ($format === ':datetime-text')	$format = __tx('date-format', 'F j, Y g:i a');	// fr: 'j F Y G \h i'
+		else if ($format === ':date-numeric')	$format = __tx('date-format', 'm.d.Y');			// fr: 'd.m.Y'
+		else if ($format === ':time-text')		$format = __tx('time-format', 'g:i a');			// fr: 'G \h i'
 
 		$format       = trim($format);
 		$months_full  = _get($args, 'months/full || months');
@@ -818,10 +813,10 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 
 	if (is_array($templates)){
 		$templates = _args($templates, [
-			'*'        => __tx('date/template', '{start} to {end}'),        // fr: '{start} au {end}'
-			'time'     => __tx('date/template:time', '{start} to {end}'),   // fr: '{start} à {end}'
-			'single'   => __tx('date/template:single', '{start}'),          // fr: '{start}'
-			'datetime' => __tx('date/template:join', '{date}, {time}'),     // fr: '{date}, {time}'
+			'*'        => __tx('date-template', '{start} to {end}'),          // fr: '{start} au {end}'
+			'time'     => __tx('date-template/time', '{start} to {end}'),     // fr: '{start} à {end}'
+			'single'   => __tx('date-template/single', '{start}'),            // fr: '{start}'
+			'datetime' => __tx('date-template/datetime', '{date}, {time}'),   // fr: '{date}, {time}'
 		], '*');
 	}
 	
@@ -829,11 +824,11 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	$format = $args['format'] ? $args['format'] : [];
 	if (is_array($format)){
 		$format = _args($format, [
-			'*'                => __tx('date/format:text', 'F j, Y'),                 // fr: 'j F Y'
-			'same-month-start' => __tx('date/format:text-same-month-start', 'F j'),   // fr: 'j'
-			'same-month-end'   => __tx('date/format:text-same-month-end', 'j, Y'),    // fr: 'j F Y'
-			'same-year-start'  => __tx('date/format:text-same-year-start', 'F j'),    // fr: 'j F'
-			'same-year-end'    => __tx('date/format:text-same-year-end', 'F j, Y'),   // fr: 'j F Y'
+			'*'                => ':text',                              // fr: 'j F Y'
+			'same-month-start' => __tx('date-format', 'F j'),      // fr: 'j'
+			'same-month-end'   => __tx('date-format', 'j, Y'),     // fr: 'j F Y'
+			'same-year-start'  => __tx('date-format', 'F j'),      // fr: 'j F'
+			'same-year-end'    => __tx('date-format', 'F j, Y'),   // fr: 'j F Y'
 		], '*');
 	}
 
@@ -906,10 +901,10 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	$time_format = $args['time_format'] === null || $args['time_format'] === true ? [] : $args['time_format'];
 	if (is_array($time_format)){
 		$time_format = _args($time_format, [
-			'*'                          => ':time-text',                                              // fr: 'G \h i'
-			'short'                      => __tx('date/format:time-short-text', 'g a'),                // fr: 'G \h'
-			'same-meridiem-start'        => __tx('date/format:time-same-meridiem-start', 'g:i'),       // fr: 'G \h i'
-			'short, same-meridiem-start' => __tx('date/format:short_time-same-meridiem-start', 'g'),   // fr: 'G \h'
+			'*'                          => ':time-text',                                         // fr: 'G \h i'
+			'short'                      => __tx('time-format/short-text', 'g a'),                // fr: 'G \h'
+			'same-meridiem-start'        => __tx('time-format/same-meridiem-start', 'g:i'),       // fr: 'G \h i'
+			'short, same-meridiem-start' => __tx('time-format/short,same-meridiem-start', 'g'),   // fr: 'G \h'
 		]);
 	}
 

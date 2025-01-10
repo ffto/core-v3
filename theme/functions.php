@@ -73,14 +73,9 @@ $dt = [
 	]
 ];
 
-// $v = ffto_to_date('now -2min', ':time-ago'); //, 'compare=5days&format=:time-ago');
-$v = ffto_to_date('2025-01-10', 'compare=2025-01-12&format=:time-ago', 'text');
+$v = ffto_to_date('now -2min', ':text'); //, 'compare=5days&format=:time-ago');
+// $v = ffto_to_date('2025-01-10', 'compare=2025-01-12&format=:time-ago', 'text');
 
-_config(['date/formats' => [
-	':snippet' => 'Y.m.d',
-]]);
-
-$v = ffto_to_date('2024-03-12', ':snippet');
 // $v = ffto_to_date('now', 'compare=5days&format=:time-ago', 'text');
 
 echo '<pre>';

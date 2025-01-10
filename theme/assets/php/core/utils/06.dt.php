@@ -257,10 +257,9 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 			$date = null; 
 		}
 	}
-
 	
 	// no date could be decoded
-	if (!$date) return false;	
+	if (!is_a($date, 'DateTime')) return false;	
 
 	// make sure the timezone is set
 	if ($timezone){
@@ -1086,16 +1085,71 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	];
 }
 
+/**
+ * Undocumented function
+ * 
+ * ```php
+ * ffto_to_dates([
+ * 	[
+ * 		'date' => ['start'=>'2024-12-05', 'end'=>'2025-12-15'],
+ * 		'time' => ['start'=>'10am', 'end'=>'12:32pm'],
+ * 	],
+ * 	[
+ * 		'start' => '2025-01-15',
+ * 		'end'	=> '2025-02-01'
+ * 	]	
+ * ]);
+ * // <div class="daterange">
+ * // 	<span class="daterange__dates"><time class="daterange__date-start" datetime="2024-12-05Z">December 5, 2024</time> to <time class="daterange__date-end" datetime="2025-12-15Z">December 15, 2025</time></span>, <span class="daterange__times"><time class="daterange__time-start" datetime="10:00:00Z">10 AM</time> to <time class="daterange__time-end" datetime="12:32:00Z">12:32 PM</time></span>
+ * // </div>
+ * // <div class="daterange">
+ * // 	<span class="daterange__dates"><time class="daterange__date-start" datetime="2025-01-15Z">January 15</time> to <time class="daterange__date-end" datetime="2025-02-01Z">February 1, 2025</time></span>
+ * // </div>
+ * 
+ * ffto_to_dates([
+ * 	'2024-12-15 10pm',
+ * 	'2024-12-16 10pm',
+ * 	'2024-12-20 9:32pm',	
+ * ]);
+ * // <div class="daterange">
+ * // 	<span class="daterange__dates"><time class="daterange__date-start" datetime="2024-12-15Z">December 15, 2024</time></span>, <span class="daterange__times"><time class="daterange__time-start" datetime="22:00:00Z">10 PM</time></span>
+ * // </div>
+ * // <div class="daterange">
+ * // 	<span class="daterange__dates"><time class="daterange__date-start" datetime="2024-12-16Z">December 16, 2024</time></span>, <span class="daterange__times"><time class="daterange__time-start" datetime="22:00:00Z">10 PM</time></span>
+ * // </div>
+ * // <div class="daterange">
+ * // 	<span class="daterange__dates"><time class="daterange__date-start" datetime="2024-12-20Z">December 20, 2024</time></span>, <span class="daterange__times"><time class="daterange__time-start" datetime="21:32:00Z">9:32 PM</time></span>
+ * // </div>
+ * 
+ * ffto_to_dates([
+ * 	'2024-12-15 10pm',
+ * 	'2024-12-16 10pm',
+ * 	'2024-12-20 9:32pm',
+ * ], ' / ', 'text');
+ * // "December 15, 2024, 10 PM / December 16, 2024, 10 PM / December 20, 2024, 9:32 PM"
+ * 
+ * ffto_to_dates([
+ * 	['start'=>'2024-10-25', 'end'=>'2024-10-27'],
+ * 	'2024-12-16 10pm',
+ * 	'2024-12-20 9:32pm',	
+ * ], '<br>', 'text');
+ * // "October 25 to October 27, 2024<br>December 16, 2024, 10 PM<br>December 20, 2024, 9:32 PM"
+ * ```
+ * 
+ * @since 2025-01-10
+ * 
+ * @param [type] $dates
+ * @param [type] $args
+ * @param [type] $return
+ * @return void
+ */
 function ffto_to_dates ($dates, $args=null, $return=null){
 	$args = _args($args, [
 		'join'     => null,
-		'empty'    => null,
-		'label'    => true,
-		// 'template' => null,
-		'return'   => null,
-		// 'template_single' => null,
-		// 'template_many'   => null,
-	], 'return');
+		'label'    => true,		// Return the label if it exists?
+		'return'   => $return,
+		// 'empty'    => null,		
+	], 'join');
 
 	$label    = null;
 	$has_time = null;
@@ -1106,7 +1160,10 @@ function ffto_to_dates ($dates, $args=null, $return=null){
 	//		'time'=>['start'=>'...', 'end'=>'...'],
 	//		'label'=>null
 	// ]
-	if (ffto_has($dates, 'date')){
+	if (
+		ffto_has($dates, 'date || label') 
+		|| ($is_multi = ffto_has($dates, 'dates/items || dates'))
+	){
 		$type  = _get($dates, 'date/type || type', null);
 		$start = _get($dates, 'date/start || date_start || start');
 		$end   = _get($dates, 'date/end || date_end || end');
@@ -1116,58 +1173,94 @@ function ffto_to_dates ($dates, $args=null, $return=null){
 		}
 
 		$label      = _get($dates, 'more/label || label');
-		$has_time   = _get($dates, 'time/has_time || has_time || time', false);
-		$time_start = $has_time ? _get($dates, 'time/start || time_start') : null;
-		$time_end   = $has_time ? _get($dates, 'time/end || time_end') : null;
+		$has_time   = _get($dates, 'time/has_time || has_time || time');
+		$time_start = $has_time !== null ? _get($dates, 'time/start || time_start') : null;
+		$time_end   = $has_time !== null ? _get($dates, 'time/end || time_end') : null;
 		
-		$dates = [];
+		$_dates = [];
 		if ($type === 'single' && $start){
-			$dates[] = [
+			$_dates[] = [
 				'date'       => $start,
 				'time_start' => $time_start,
 				'time_end'   => $time_end,
 			];
 		}else if ($type === 'range' && $start){
-			$dates[] = [
+			$_dates[] = [
 				'start' => ['date'=>$start, 'time'=>$time_start],
 				'end'   => ['date'=>$end, 'time'=>$time_end],
 			];
-		}else if ($type === 'multi'){
-			$dates = _get($dates, 'dates/items || items || dates', []);			
+		}else if ($type === 'multi' || $is_multi){
+			$_dates = _get($dates, 'dates/items || dates', []);			
 		}else if ($time_start){
-			$dates[] = [
+			$_dates[] = [
 				'date'       => null,
 				'time_start' => $time_start,
 				'time_end'   => $time_end,
 			];
 		}		
-	}else if (!ffto_is_list($dates)){
-		$dates = [$dates];
+	}else{
+		$_dates = ffto_is_list($dates) ? $dates : [$dates];
 	}
 
-	$dates = empty($dates) ? [] : $dates;
-	
+	$_dates = empty($_dates) ? [] : $_dates;
+
 	// Parse and get the dates
-	$start  = null;
-	$end    = null;
-	$_dates = [];
-	foreach ($dates as $dt){
-		$dt = ffto_to_daterange($dt, null, $args, true);
-		if (!$dt) continue;
+	$start = null;
+	$end   = null;
+	$dates = [];
+	foreach ($_dates as $dt){
+		// make sure it returns the object, NOT a specific key
+		$a = $args;
+		unset($a['return']);
 
-		$s            = _get($dt, 'start');
-		$e            = _get($dt, 'end', $s);
-		$start        = max($start, $s);
-		$end          = max($end, $e);
-		$key          = $s->format('Y-m-d H:i:s');
-		$_dates[$key] = $dt;
+		if ($has_time !== null){
+			$a['time'] = $has_time;
+		}	
+
+		$dt = ffto_to_daterange($dt, null, $a, true);
+
+		if (!$dt) continue;
+		$s           = _get($dt, 'start');
+		$e           = _get($dt, 'end || start');
+		$start       = max($start, $s);
+		$end         = max($end, $e);
+		$key         = $s->format('Y-m-d H:i:s').' -> '.$e->format('Y-m-d H:i:s');
+		$dates[$key] = $dt;
+	}
+
+	// order the dates
+	ksort($dates);
+	$dates = array_values($dates);
+
+	// Get the right returned values
+	$join   = null;
+	$_dates = [];
+	foreach ($dates as $v){
+		if (true === ($r = $args['return'])){
+			$join    = false;
+			$_dates[] = $v;
+		}else if ($r){
+			$_dates[] = _get($v, $r);
+		}else{
+			$join    = NL;
+			$_dates[] = _get($v, 'html');
+		}
 	}
 	
-	// order the dates
-	ksort($_dates);
-	$_dates = array_values($_dates);
-	
-	// format/text version
+	// Label alternative
+	if ($args['label'] && $label && $join !== false){
+		$join   = $join ? $join : NL;
+		$_dates = [$label];
+	}
+
+	// [x] Deal with label
+	// [ ] Deal with empty label
+	// [ ] Maybe adding a HTML wrap around all?
+
+	$join = $args['join'] === null || $join === false ? $join : $args['join'];
+	if (is_string($join)){
+		$_dates = implode($join, $_dates);
+	}
 
 	return $_dates;
 }

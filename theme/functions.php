@@ -11,7 +11,6 @@
 include_once('assets/php/core/utils.php');
 include_once('assets/php/core/site.php');
 
-// [ ] add defaults for date formats (en, fr, ...)
 // [ ] text translation (add better context)
 // [ ] with get, be able to escape "||" "|" and "." with prefix "\"
 
@@ -71,15 +70,20 @@ $dt = [
 	[
 		'start' => '2025-01-15',
 		'end'	=> '2025-02-01'
-	]
+	]	
 ];
 
-// $v = ffto_to_dates($dt);
-$v = ffto_to_date('now -2min', ':text'); //, 'compare=5days&format=:time-ago');
-// $v = _t("Bob \h the drag");
-// $v = ffto_to_date('2025-01-10', 'compare=2025-01-12&format=:time-ago', 'text');
+$v = ffto_to_dates($dt);
 
-$v = ffto_to_date('now', 'compare=5days&format=:time-ago', 'text');
+$v = ffto_to_dates([
+	['start'=>'2024-10-25', 'end'=>'2024-10-27'],
+	'2024-12-16 10pm',
+	'2024-12-20 9:32pm',	
+], '<br>', 'text');
+// $v = ffto_to_date('now -2min', ':text'); //, 'compare=5days&format=:time-ago');
+// $v = _t("Bob \h the drag");
+// $v = ffto_to_date('2025-01-10');
+// $v = ffto_to_date('now', 'compare=5days&format=:time-ago', 'text');
 
 echo '<pre>';
 echo NL . NL;

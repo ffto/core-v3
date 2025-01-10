@@ -47,25 +47,6 @@ function ffto_set_lang ($lang){
 	return $lang;
 }
 
-function ffto_to_translation ($text, $args=null){
-	$args = _args($args, [
-		'domain' => null,
-		'ctx'    => null,
-		'lang'   => null,
-		'save'   => null,
-	]);
-
-	$translations = ffto_get_translations($args['lang']);
-	$key          = ($args['ctx'] ? "{$args['ctx']} | " : '') . $text;  // TODO maybe the text will be using strip_tags() or something like that
-
-	if (isset($translations[$key])){		
-		$text = $translations[$key];
-		$text = str_replace('\\', '\\\\', $text);
-	}
-
-	return $text;
-}
-
 /**
  * Return a string in the right language. There's multiple ways to show text:
  * - Simple text: ffto_translate('text');
@@ -198,6 +179,27 @@ function ffto_translate ($text, $data=null, $args=null, $ctx=null){
 	return $text;
 }
 
+// NOT FINISHED
+function ffto_to_translation ($text, $args=null){
+	$args = _args($args, [
+		'domain' => null,
+		'ctx'    => null,
+		'lang'   => null,
+		'save'   => null,
+	]);
+
+	$translations = ffto_get_translations($args['lang']);
+	$key          = ($args['ctx'] ? "{$args['ctx']} | " : '') . $text;  // TODO maybe the text will be using strip_tags() or something like that
+
+	if (isset($translations[$key])){		
+		$text = $translations[$key];
+		$text = str_replace('\\', '\\\\', $text);
+	}
+
+	return $text;
+}
+
+// NOT FINISHED
 function ffto_get_translations ($lang=null){
 	$lang       = $lang ? $lang : ffto_get_lang();
 	$key        = '$dictionary/'.$lang;
@@ -205,6 +207,7 @@ function ffto_get_translations ($lang=null){
 	return $dictionary;
 }
 
+// NOT FINISHED
 function ffto_set_translations ($translations, $lang=null){
 	$lang       = $lang ? $lang : ffto_get_lang();
 	$key        = '$dictionary/'.$lang;

@@ -38,39 +38,76 @@
  *
  * ```php
  * ffto_to_date('now');
+ * // <time datetime="2025-01-09T19:07:56Z">January 9, 2025 7:07 PM</time>
+ * 
+ * ffto_to_date('now', false);
  * // object(DateTime)["date"=>"2024-05-18 17:55:46.302883", "timezone_type"=>3, "timezone"=>"America/Toronto"]
  * 
- * ffto_to_date('now', 'time=0', ':full');
+ * ffto_to_date('now', true);
+ * // [
+ * //     "date" => [
+ * //         "date" => "2025-01-09 19:06:45.970346",
+ * //         "timezone_type" => 3,
+ * //         "timezone" => "America\/Toronto"
+ * //    ],
+ * //     "has_time" => true,
+ * //     "timezone" => "America\/Toronto",
+ * //     "text" => "January 9, 2025 7:06 PM",
+ * //     "html" => "<time datetime=\"2025-01-09T19:07:56Z\">January 9, 2025 7:07 PM</time>",
+ * //     "utc" => "2025-01-09 19:06:45 America\/Toronto",
+ * //     "season" => "winter",
+ * //     "season_year" => 2024,
+ * //     "time_of_day" => "evening",
+ * //     "is_weekend" => false,
+ * //     "is_today" => true,
+ * //     "is_this_month" => true,
+ * //     "is_this_year" => true,
+ * //     "is_before_now" => true,
+ * //     "is_after_now" => false,
+ * //     "is_passed" => false,
+ * //     "is_upcoming" => true,
+ * //     "is_same_day" => true,
+ * //     "is_same_month" => true,
+ * //     "is_same_year" => true
+ * // ]
+ * 
+ * ffto_to_date('now', 'time=0&format=:full', 'text');
  * // "2024-05-18 00:00:00"
  * 
- * ffto_to_date('now', 'update=+3days', ':date');
- * // "2024-05-21"
+ * ffto_to_date('now', 'update=+3days&format=:date');
+ * // <time datetime="2025-01-12T19:03:12Z">2025-01-12</time>
  * 
- * ffto_to_date('now', 'compare=5days', ':time-ago');
- * // "in 5 days"
+ * ffto_to_date('2025-01-10', 'compare=2025-01-12&format=:time-ago', 'text');
+ * // "2 days ago"
  * 
- * ffto_to_date('now', ['format'=>':time-ago', 'compare'=>'now -5days', 'time_ago'=>[
- * 	'day'  => ['jour', 'jours'],
- * 	'past' => 'il y a {time} {period}'
- * ]]);
+ * ffto_to_date('now -5days', [
+ * 	'compare'  => 'now',
+ * 	'format'   => ':time-ago',
+ * 	'return'   => 'text',
+ * 	'time_ago' => [
+ * 		'day'  => ['jour', 'jours'],
+ * 		'past' => 'il y a {time} {period}',
+ * 	]
+ * ]);
  * // "il y a 5 jours"
  * 
- * ffto_to_date('now', ['replace'=>['PM'=>'p.m.']], ':time-text');
+ * ffto_to_date('now', ['replace'=>['PM'=>'p.m.'], 'format'=>':time-text'])
  * // "6:25 p.m."
  * 
- * ffto_to_date('now', ['data'=>['name'=>'Bob.']], '`it is now:` H:m A {name}');
+ * ffto_to_date('now', ['data'=>['name'=>'Bob.'], 'format'=>'`it is now:` H:i A {name}']);
  * // "it is now: 19:05 PM Bob."
  * 
- * ffto_to_date('now', null, [
- * 	'*'            => 'M, d Y',
- * 	'current-year' => 'M d',
- * ]);
+ * ffto_to_date('18 may', ['format'=>[
+ * 	'*'            => 'M, j Y',
+ * 	'current-year' => 'M j',
+ * ]]);
  * // "May 18"
  * 
- * ffto_to_date('now', [
- * 	'months' => [4=>'MAY']
- * ], 'F, d Y');
- * // MAY, 18 2024
+ * ffto_to_date('18 may', [
+ * 	'months' => [4=>'IT\'S GONNA BE MAY'],
+ * 	'format' => 'F, d Y',
+ * ], 'text');
+ * // "IT'S GONNA BE MAY, 18 2025"
  * 
  * ffto_to_date('2020-01-30 3:40pm', ['format'=>[
  * 	'*'					=> 'F j, Y',
@@ -86,28 +123,25 @@
  * ]]);
  * // January 30, 2020
  * 
- * ffto_to_date('now', ['format'=>[
+ * ffto_to_date('21st july', ['format'=>[
  * 	'*'					=> 'F j, Y',
  * 	'current-year' 		=> 'F j',
  * ]]);
  * // July 21
  * 
  * ffto_to_date('2024-03-12', [
- * 	'format'  => '*',
- * 	'formats' => [
+ * 	'format'  => [
  * 		'*'        => 'F j g:i a `Bob`',
  * 		':snippet' => 'Y.m.d',
  * 	]
  * ]);
  * // March 12 12:00 AM Bob
  * 
- * ffto_to_date('2024-03-12', [
- * 	'format'  => '*',
- * 	'formats' => [
- * 		'*'        => 'F j g:i a `Bob`',
- * 		':snippet' => 'Y.m.d',
- * 	]
- * ]);
+ * _config(['date/formats' => [
+ * 	':snippet' => 'Y.m.d',
+ * ]]);
+ * 
+ * ffto_to_date('2024-03-12', ':snippet');
  * // 2024.03.12
  * ```
  * 
@@ -120,8 +154,7 @@
  * 	- 'time' 			[null] either false to remove the time, true to keep it, a string to force a time, null to do nothing
  * 	- 'type' 			[date] (date, strftime, ICU), different formatting structure (default to date)
  * 	- 'format' 			[$format] either a string, an array ['*' => '', 'current-year' => ''], null = DateTime object, true.
- *  - 'formats'			[config:date/formats] Object of multiple possible formats (eg.: ["snippet"=>"Y.m.d"])	
- * 	- 'timezone' 		[config:date/timezone] (See @link https://www.php.net/manual/en/timezones.php)
+ *  - 'timezone' 		[config:date/timezone] (See @link https://www.php.net/manual/en/timezones.php)
  * 	- 'update' 			[null] update the date, either a string or a numeric value
  * 	- 'compare' 		[now] comparing date for time-ago
  * 	- 'input_format' 	[null] way of decoding the date
@@ -158,7 +191,6 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 		'time'           => null,                             // either false to remove the time, true to keep it, a string to force a time
 		'type' 	 		 => _config('date/type', 'date'), 	  // [null/date, strftime, ICU]
 		'format'         => '*',						  // either a string, an array ['*' => '', 'current-year' => ''], null = DateTime object, true = timestamp, :object will be eveything with data
-		// 'formats'		 => _config('date/formats'),		  // custom formats by names (eg.: "snippet")
 		'timezone'       => _config('date/timezone'),		  // list: https://www.php.net/manual/en/timezones.php
 		'update'         => null,                             // update the date, either a string or a numeric value
 		'compare'		 => 'now',						      // comparing date for time-ago AND when returning an object (is_passed and is_upcoming)
@@ -173,7 +205,7 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 		'time_ago'       => _config('date/time_ago'),    	  // labels for time-ago
 		'wrap'			 => true,							  // return the format with a <time> wrapping the value
 		'attr_format'	 => null,                          	  // when wrapping the date with a <time> tag, the datetime attribute needs a format
-		'return'		 => $return,							  // return object OR a specific property		
+		'return'		 => $return,						  // return object OR a specific property		
 	], 'format', 'ffto_to_date/args');
 	
 	// decode array like this: ['date'=>'', 'time'=>'']
@@ -321,19 +353,24 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 			'future' => 'in {time} {period}',
 		], $_time_ago);
 
+		// $format = __tx('date/format:full',
+
 		$compare   = ffto_to_date($args['compare'], ['format'=>false, 'timezone'=>$date->getTimezone()]);
+
+		// p($compare, $date);
+
 		$lengths   = array(60,60,24,7,4.35,12,10);
 		$past      = $time_ago['past'];
 		$future    = $time_ago['future'];
 		$time_ago  = array_values($time_ago);
-		$is_past   = $compare < $date;
-		$diff      = $is_past ? $date->getTimestamp() - $compare->getTimestamp() : $compare->getTimestamp() - $date->getTimestamp();
+		$is_past   = $compare > $date;
+		$diff      = $is_past ? $compare->getTimestamp() - $date->getTimestamp() : $date->getTimestamp() - $compare->getTimestamp();
 		
 		for ($i = 0; $diff >= $lengths[$i] && $i < count($lengths)-1; $i++) {
 			$diff /= $lengths[$i];
 		}
 
-		$diff   = round($diff);
+		$diff   = floor($diff);
 		$single = _get($time_ago, "{$i}/0 || {$i}");
 		$plural = _get($time_ago, "{$i}/1", "{$single}s");
 		$many   = $diff != 1;
@@ -1114,12 +1151,8 @@ function ffto_to_dates ($dates, $args=null, $return=null){
 	}
 
 	$dates = empty($dates) ? [] : $dates;
-	// $templates = ffto_to_conditional_format($dates, $args['template'], [
-	// 	'multi' => count($dates) > 1,
-	// 	'empty' => empty($dates),
-	// ], 'dates/formats');
-
-	// [ ] Get lower and hightest dates
+	
+	// Parse and get the dates
 	$start  = null;
 	$end    = null;
 	$_dates = [];

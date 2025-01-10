@@ -19,11 +19,12 @@ _config([
 	'version'   => '1.0.0',
 	'languages' => 'en, fr',
 	// 'lang'      => 'fr',
-	'date' => [
-		'timezone' => 'America/Toronto',
-		'formats'  => [
-		]
-	]
+	// 'date' => [
+	// 	'timezone' => 'America/Toronto',
+	// 	'formats'  => [
+
+	// 	]
+	// ]
 ]);
 
 // /*
@@ -73,10 +74,12 @@ $dt = [
 	]
 ];
 
+// $v = ffto_to_dates($dt);
 $v = ffto_to_date('now -2min', ':text'); //, 'compare=5days&format=:time-ago');
+// $v = _t("Bob \h the drag");
 // $v = ffto_to_date('2025-01-10', 'compare=2025-01-12&format=:time-ago', 'text');
 
-// $v = ffto_to_date('now', 'compare=5days&format=:time-ago', 'text');
+$v = ffto_to_date('now', 'compare=5days&format=:time-ago', 'text');
 
 echo '<pre>';
 echo NL . NL;

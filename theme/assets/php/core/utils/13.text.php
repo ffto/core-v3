@@ -1,7 +1,5 @@
 <?php 
 // simple translations here -
-
-
 /* =====================================================================================================================
 Quick
 ===================================================================================================================== */
@@ -57,10 +55,15 @@ function ffto_to_translation ($text, $args=null){
 		'save'   => null,
 	]);
 
-	// __err($text, $args);
-	// TODO
+	$translations = ffto_get_translations($args['lang']);
+	$key          = ($args['ctx'] ? "{$args['ctx']} | " : '') . $text;  // TODO maybe the text will be using strip_tags() or something like that
 
-	return null;
+	if (isset($translations[$key])){		
+		$text = $translations[$key];
+		$text = str_replace('\\', '\\\\', $text);
+	}
+
+	return $text;
 }
 
 /**
@@ -179,7 +182,11 @@ function ffto_translate ($text, $data=null, $args=null, $ctx=null){
 	
 	$text = ffto_is($translation) ? $translation : $text;
 	$text = $data ? _replace($text, $data) : $text; // add the data variables
-	$text = str_replace('\\', '', $text);                  // remove '\' since it's there for escaping 
+
+	// remove '\' since it's there for escaping (in ffto_to_translation(), the "\" are duplicated, so they are kept)
+	$text = preg_replace('/\\\{2}/', KEY, $text);
+	$text = str_replace('\\', '', $text);
+	$text = str_replace(KEY, '\\', $text);
 
 	// [ ] args.type = for knowing if it's HTML or something like that, so we know if we use a wysiwyg editor [html, nl2br, attr, list, ...]
 	// [ ] args.parent = when using list, it;s the parent of this item
@@ -190,3 +197,47 @@ function ffto_translate ($text, $data=null, $args=null, $ctx=null){
 
 	return $text;
 }
+
+function ffto_get_translations ($lang=null){
+	$lang       = $lang ? $lang : ffto_get_lang();
+	$key        = '$dictionary/'.$lang;
+	$dictionary = _global($key, []);
+	return $dictionary;
+}
+
+function ffto_set_translations ($translations, $lang=null){
+	$lang       = $lang ? $lang : ffto_get_lang();
+	$key        = '$dictionary/'.$lang;
+	$dictionary = _global($key, []);
+	$dictionary = array_merge($dictionary, $translations);
+	_global($key, $dictionary, true);
+}
+
+/* =====================================================================================================================
+Default translations
+===================================================================================================================== */
+ffto_set_translations([
+	'date-format | F j, Y g:i a'              => 'j F Y G \h i',
+	'date-format | F j, Y'                    => 'j F ',
+	'date-format | m.d.Y'                     => 'd.m.Y',
+	'date-format/month-start | F j'           => 'j',
+	'date-format/month-end | j, Y'            => 'j F Y',
+	'date-format/year-start | F j'            => 'j F',
+	'date-format/year-end | F j, Y'           => 'j F Y',
+	'time-format | g:i a'                     => 'G \h i',
+	'time-format/short | g a'                 => 'G \h',
+	'time-format/meridiem | g:i'              => 'G \h i',
+	'time-format/short,meridiem | g'          => 'G \h',
+	'date-template | {start} to {end}'        => '{start} au {end}',
+	'date-template/time | {start} to {end}'   => '{start} à {end}',
+	'time-ago | second'                       => 'seconde',
+	'time-ago | minute'                       => 'minute',
+	'time-ago | hour'                         => 'heure',
+	'time-ago | day'                          => 'jour',
+	'time-ago | week'                         => 'semaine',
+	'time-ago | month'                        => 'mois',
+	'time-ago | year'                         => 'an',
+	'time-ago | decade'                       => 'décennie',
+	'time-ago/template | {time} {period} ago' => 'il y a {time} {period}',
+	'time-ago/template | in {time} {period}'  => 'dans {time} {period}',
+], 'fr');

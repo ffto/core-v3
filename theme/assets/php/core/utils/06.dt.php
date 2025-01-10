@@ -196,7 +196,7 @@ function ffto_to_date ($date=null, $args=null, $return=null){
 		'compare'		 => 'now',						      // comparing date for time-ago AND when returning an object (is_passed and is_upcoming)
 		'input_format'   => null,                             // way of decoding the date
 		'input_timezone' => _config('date/input_timezone'),
-		'lang'           => _config('date/lang'),             // change the language of the formating
+		'lang'           => _config('date/lang || lang'),     // change the language of the formating (either the date/lang OR the lang config value)
 		'replace'        => null,                             // replacing values in the format
 		'data'           => null,                             // replacing vars in the format
 		'months'         => _config('date/months'),           // labels for the months (for full months and short version)
@@ -824,11 +824,11 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	$format = $args['format'] ? $args['format'] : [];
 	if (is_array($format)){
 		$format = _args($format, [
-			'*'                => ':text',                              // fr: 'j F Y'
-			'same-month-start' => __tx('date-format', 'F j'),      // fr: 'j'
-			'same-month-end'   => __tx('date-format', 'j, Y'),     // fr: 'j F Y'
-			'same-year-start'  => __tx('date-format', 'F j'),      // fr: 'j F'
-			'same-year-end'    => __tx('date-format', 'F j, Y'),   // fr: 'j F Y'
+			'*'                => ':text',                                  // fr: 'j F Y'
+			'same-month-start' => __tx('date-format/month-start', 'F j'),   // fr: 'j'
+			'same-month-end'   => __tx('date-format/month-end', 'j, Y'),    // fr: 'j F Y'
+			'same-year-start'  => __tx('date-format/year-start', 'F j'),    // fr: 'j F'
+			'same-year-end'    => __tx('date-format/year-end', 'F j, Y'),   // fr: 'j F Y'
 		], '*');
 	}
 
@@ -901,10 +901,10 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
 	$time_format = $args['time_format'] === null || $args['time_format'] === true ? [] : $args['time_format'];
 	if (is_array($time_format)){
 		$time_format = _args($time_format, [
-			'*'                          => ':time-text',                                         // fr: 'G \h i'
-			'short'                      => __tx('time-format/short-text', 'g a'),                // fr: 'G \h'
-			'same-meridiem-start'        => __tx('time-format/same-meridiem-start', 'g:i'),       // fr: 'G \h i'
-			'short, same-meridiem-start' => __tx('time-format/short,same-meridiem-start', 'g'),   // fr: 'G \h'
+			'*'                          => ':time-text',                              // fr: 'G \h i'
+			'short'                      => __tx('time-format/short', 'g a'),          // fr: 'G \h'
+			'same-meridiem-start'        => __tx('time-format/meridiem', 'g:i'),       // fr: 'G \h i'
+			'short, same-meridiem-start' => __tx('time-format/short,meridiem', 'g'),   // fr: 'G \h'
 		]);
 	}
 

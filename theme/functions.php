@@ -32,59 +32,6 @@ echo ffto_to_asset('@styles/style.css');
 $i = null;
 $v = null;
 
-$people = [
-    ['name' => 'John Doe', 'age' => 28, 'gender' => 'male', 'phone' => '555-1234', 'tags'=>['a','b']],
-    ['name' => 'Jane Smith', 'age' => 32, 'gender' => 'female', 'phone' => '555-5678', 'tags'=>['c']],
-    ['name' => 'Sam Johnson', 'age' => 24, 'gender' => 'male', 'phone' => '555-8765', 'tags'=>['b']],
-    ['name' => 'Lisa Brown', 'gender' => 'female', 'phone' => '555-3456', 'tags'=>['a','d']],
-    ['name' => 'Chris Green', 'age' => 35, 'gender' => 'two-spirit', 'phone' => '555-9876', 'tags'=>['a','b','c']],
-    ['name' => 'Anna White', 'age' => 22, 'gender' => 'female', 'phone' => '555-5432', 'tags'=>['b']],
-    ['name' => 'Paul Black', 'age' => 31, 'gender' => 'male', 'phone' => '555-6543', 'tags'=>['d']],
-    ['name' => 'Emma Gray', 'gender' => 'female', 'phone' => '555-4321', 'tags'=>['d']],
-    ['name' => 'Emma Gray 2', 'age' => 27, 'gender' => 'female', 'phone' => '555-4321', 'tags'=>['b','c']],
-    ['name' => 'David Blue', 'age' => 40, 'gender' => 'male', 'phone' => '555-8761', 'tags'=>['a','b','c']],
-    ['name' => 'Sophia Red', 'age' => 29, 'gender' => 'female', 'phone' => '555-2345', 'tags'=>['b']],
-    ['name' => 'Finish', 'gender' => 'two-spirit', 'phone' => '555-2345', 'tags'=>['a','b']],
-    ['name' => 'Pat', 'age' => 29, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a','b']],
-    ['name' => 'Julia', 'age' => 30, 'gender' => 'nonbinary', 'phone' => '555-2345', 'tags'=>['a']],
-];
-
-$pages = [
-	['id' => 1, 'name' => 'Home', 'parent_id' => 0],
-	['id' => 2, 'name' => 'About Us', 'parent_id' => 0],
-	['id' => 3, 'name' => 'Services', 'parent_id' => 0],
-	['id' => 4, 'name' => 'Contact', 'parent_id' => 0],
-	['id' => 5, 'name' => 'Our Team', 'parent_id' => 2],
-	['id' => 6, 'name' => 'Web Design', 'parent_id' => 3],
-	['id' => 7, 'name' => 'Web Development', 'parent_id' => 3],
-	['id' => 8, 'name' => 'SEO', 'parent_id' => 3],
-	['id' => 9, 'name' => 'Meet the CEO', 'parent_id' => 5],
-	['id' => 10, 'name' => 'Case Studies', 'parent_id' => 3],
-];
-
-$dt = [
-	[
-		'date' => ['start'=>'2024-12-05', 'end'=>'2025-12-15'],
-		'time' => ['start'=>'10am', 'end'=>'12:32pm'],
-	],
-	[
-		'start' => '2025-01-15',
-		'end'	=> '2025-02-01'
-	]	
-];
-
-$v = ffto_to_dates($dt);
-
-$v = ffto_to_dates([
-	['start'=>'2024-10-25', 'end'=>'2024-10-27'],
-	'2024-12-16 10pm',
-	'2024-12-20 9:32pm',	
-], '<br>', 'text');
-// $v = ffto_to_date('now -2min', ':text'); //, 'compare=5days&format=:time-ago');
-// $v = _t("Bob \h the drag");
-// $v = ffto_to_date('2025-01-10');
-// $v = ffto_to_date('now', 'compare=5days&format=:time-ago', 'text');
-
 echo '<pre>';
 echo NL . NL;
 	echo 'Value is set: ' . ($v ? 'Yes' : 'no');

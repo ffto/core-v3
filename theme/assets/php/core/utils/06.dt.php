@@ -1134,6 +1134,9 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
  * 	'2024-12-20 9:32pm',	
  * ], '<br>', 'text');
  * // "October 25 to October 27, 2024<br>December 16, 2024, 10 PM<br>December 20, 2024, 9:32 PM"
+ * 
+ * ffto_to_dates([], 'empty=No dates');
+ * // "No dates"
  * ```
  * 
  * @since 2025-01-10
@@ -1145,10 +1148,10 @@ function ffto_to_daterange ($start, $end=null, $args=null, $return=null){
  */
 function ffto_to_dates ($dates, $args=null, $return=null){
 	$args = _args($args, [
-		'join'     => null,
-		'label'    => true,		// Return the label if it exists?
-		'return'   => $return,
-		// 'empty'    => null,		
+		'join'   => null,
+		'label'  => true,      // Return the label if it exists?
+		'empty'  => null,      // Text to return if it's empty
+		'return' => $return,
 	], 'join');
 
 	$label    = null;
@@ -1246,17 +1249,22 @@ function ffto_to_dates ($dates, $args=null, $return=null){
 			$_dates[] = _get($v, 'html');
 		}
 	}
-	
-	// Label alternative
-	if ($args['label'] && $label && $join !== false){
-		$join   = $join ? $join : NL;
-		$_dates = [$label];
-	}
 
 	// [x] Deal with label
-	// [ ] Deal with empty label
+	// [x] Deal with empty label
 	// [ ] Maybe adding a HTML wrap around all?
 
+	// Label alternative
+	if ($join !== false){
+		$join = $join ? $join : NL;
+
+		if ($args['label'] && $label){
+			$_dates = [$label];
+		}else if (($empty = $args['empty']) && empty($_dates)){
+			$_dates = [$empty];
+		}
+	}
+	
 	$join = $args['join'] === null || $join === false ? $join : $args['join'];
 	if (is_string($join)){
 		$_dates = implode($join, $_dates);

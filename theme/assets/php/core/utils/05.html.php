@@ -1069,6 +1069,42 @@ function ffto_to_css ($css, $args=null){
 }
 
 
+/**
+ * Return the aria-label to a link, if it's external it will append a suffix.
+ * 
+ * ```php
+ * ffto_to_aria_link('https://bob.com/cool', 'Super cool');
+ * // "Super cool (opens a new tab)
+ * ```
+ *
+ * @param mixed $url
+ * 	- 'url' [] the url to compare check if it's external
+ * 	- 'label' [$label] label to use
+ * 	- 'aria-label' [''] alternate label to use
+ * 	- 'target' [null] the link target, if "_blank" it will add the suffix
+ * 	- 'suffix' ['(opens a new tab)'] suffix text to add if it's an external link
+ * @param string $label
+ * @return string
+ */
+function ffto_to_aria_link ($url, $label=''){
+	$item = _args($url, [
+		'url'        => '',
+		'label'      => $label,
+		'aria-label' => '',
+		'target'	 => null,
+		'suffix'	 => '(opens a new tab)',
+	], 'url');
+
+	$_label = $item['label'];
+	$label  = $item['aria-label'] ? $item['aria-label'] : $item['label'];
+
+	if ($item['target'] === '_blank' || ffto_is_url($item['url'], 'external')){
+		$label = trim($label . ' ' . $item['suffix']);
+	}
+	
+    return $label !== $_label ? $label : '';
+}
+
 /* =====================================================================================================================
 Functions
 ===================================================================================================================== */
@@ -1165,6 +1201,8 @@ function ffto_decode_attrs ($attrs, $defaults=null){
 /* =====================================================================================================================
 Elements
 ===================================================================================================================== */
+// TODO Maybe change those naming from "to_" to "the_" and by default it outputs
+
 /**
  * Wrap a value with a tag.
  * 
@@ -1179,7 +1217,7 @@ Elements
  * 	- 'tag' [$tag] Tag selector to wrap the $html
  * 	- 'empty' [false] Let empty $html pass or not
  * 	- 'template' [null] Template to use with the html, uses the "value" variable
- * @return void
+ * @return string
  */
 function ffto_to_tag ($html, $tag=null, $args=null){
 	if (is_array($tag) || is_bool($tag)){
@@ -1204,42 +1242,6 @@ function ffto_to_tag ($html, $tag=null, $args=null){
 	$html = __html($args['tag'], ['html'=>$html]);
 
 	return $html;
-}
-
-/**
- * Return the aria-label to a link, if it's external it will append a suffix.
- * 
- * ```php
- * ffto_to_aria_label('https://bob.com/cool', 'Super cool');
- * // "Super cool (opens a new tab)
- * ```
- *
- * @param mixed $url
- * 	- 'url' [] the url to compare check if it's external
- * 	- 'label' [$label] label to use
- * 	- 'aria-label' [''] alternate label to use
- * 	- 'target' [null] the link target, if "_blank" it will add the suffix
- * 	- 'suffix' ['(opens a new tab)'] suffix text to add if it's an external link
- * @param string $label
- * @return string
- */
-function ffto_to_aria_label ($url, $label=''){
-	$item = _args($url, [
-		'url'        => '',
-		'label'      => $label,
-		'aria-label' => '',
-		'target'	 => null,
-		'suffix'	 => '(opens a new tab)',
-	], 'url');
-
-	$_label = $item['label'];
-	$label  = $item['aria-label'] ? $item['aria-label'] : $item['label'];
-
-	if ($item['target'] === '_blank' || ffto_is_url($item['url'], 'external')){
-		$label = trim($label . ' ' . $item['suffix']);
-	}
-	
-    return $label !== $_label ? $label : '';
 }
 
 /**
@@ -1347,7 +1349,7 @@ function ffto_to_link ($link, $label=null, $args=null){
 
 	// aria label
 	$aria_label = _get($link, 'aria-label', $args['aria-label']);
-	$aria_label = ffto_to_aria_label([
+	$aria_label = ffto_to_aria_link([
 		'url'        => $url,
 		'label'      => $label,
 		'aria-label' => $aria_label,

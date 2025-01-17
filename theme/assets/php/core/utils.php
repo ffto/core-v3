@@ -20,7 +20,7 @@
 // [ ]	modules
 // [ ]	utils
 // [ ]		__dom.php
-// [ ]		array.php
+// [x]		array.php
 // [ ]		color.php
 // [ ]		data.php
 // [ ]		date.php
@@ -1227,6 +1227,7 @@ function _string ($v, $args=null, $join=', '){
 			$v = strtr($v, [
 				'": ' => '" => ',
 				"{\n" => "[\n",
+				"\/"  => '/'
 			]);
 			$v = preg_replace('/\}(,|\n|$)/', ']$1', $v);
 		}
@@ -3620,13 +3621,14 @@ function ffto_get_files ($paths, $args=null, $_parent=null){
 
 		foreach ($files as $i => $filepath){
 			$filename = pathinfo($filepath, PATHINFO_BASENAME);
+			$is_dir   = is_dir($filepath);
 
 			// skipping files
 			if (
 				($exclude && ffto_is_like($filename, $exclude)) 
 				|| ($match && !ffto_is_like($filename, $match))
 				|| ($only_file && !is_file($filepath))
-				|| ($only_dir && !is_dir($filepath))
+				|| ($only_dir && !$is_dir)
 			){
 				continue;
 			}
@@ -3680,7 +3682,10 @@ function ffto_get_files ($paths, $args=null, $_parent=null){
 					'dir'  => $filepath,
 					'deep' => is_numeric($args['deep']) ? $args['deep'] - 1 : $args['deep'],
 				]);
+
+				__err($paths, $_args);
 				
+				/*
 				$children = ffto_get_files($paths, $_args, [
 					'dir'   => $_parent['dir'],
 					'depth' => $_parent['depth'] + 1,
@@ -3695,6 +3700,7 @@ function ffto_get_files ($paths, $args=null, $_parent=null){
 				}
 
 				_call($format_post, $file, $filepath, $args);
+				*/
 			}
 
 			if ($args['tree']){

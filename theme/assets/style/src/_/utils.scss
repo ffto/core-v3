@@ -2582,6 +2582,30 @@ $image-version: false !default;
 		linear-gradient($angle2, $transparent 0%, $transparent $start, $color $start, $color $end, $transparent $end, $transparent 100%);
 }
 
+@mixin background-line ($size:1px, $color:black, $angle:0){
+    @if ($size == '/' or $size == '\\'){
+        $angle: $size;
+        $size : 1px;
+    }
+
+	$size           : to-value((--bg-cross-size, $size));
+	$half           : calc(#{$size} / 2);
+	$start          : calc(50% - #{$half});
+	$end            : calc(50% + #{$half});
+
+    @if ($angle == '/'){
+        $angle : -45;
+    }@else if ($angle == '\\'){
+        $angle : 45;
+    }
+
+
+	$angle          : to-value((--bg-cross-angle, $angle), $unit:1deg);
+	$color          : to-value((--bg-cross-color, $color));
+	$transparent    : rgba(black, 0);
+	background-image: linear-gradient($angle, $transparent 0%, $transparent $start, $color $start, $color $end, $transparent $end, $transparent 100%);
+}
+
 /// Add columns to the background
 /// # css vars: 
 /// * --bg-column-color
@@ -2685,7 +2709,6 @@ $image-version: false !default;
 
     background: str-join($value, ', ');
 }
-
 
 /// Add a trail of color to an element
 /// [old] background-shadow
@@ -3092,8 +3115,13 @@ $debug-screen: null !default;
     $is-debug: match-debug-screen($query, $is);
 
     @if ($is-debug != null){
-        @if ($is-debug){
-            @content; 
+        // Because of mixed declarations changed (@see https://sass-lang.com/d/mixed-decls), a "&" needs to be added to respect the order 
+        @if ($is-debug and & != null){
+            &{
+                @content;
+            }
+        }@else if ($is-debug){
+            @content;
         }
     }@else{
         $query : to-media-query($query);
@@ -6171,7 +6199,9 @@ $icon-chevron-down    : "data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0Y
 			opacity:0;
 		}
 
-		@content;
+		&{
+			@content;
+		}
 	}
 }
 
@@ -6261,8 +6291,8 @@ $icon-chevron-down    : "data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0Y
 		'background': --form-checkbox-background,
 		'border'    : ('color':--form-checkbox-border),
 	)){
-		@include square($size);
 		border-radius:0;
+		@include square($size);
 
 		&::after{		
 			$_color : to-value((--form-checkbox-dot, $dot-color));
@@ -6361,9 +6391,9 @@ $icon-chevron-down    : "data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0Y
 		'background': --form-toggle-background,
 		'border'    : ('color':--form-toggle-border),
 	)){
-		@include square($size);
 		border-radius: 5em;
 		padding      : $dot-margin;
+		@include square($size);
 
 		&::after{
 			content         : '';

@@ -32,6 +32,8 @@ echo ffto_to_asset('@styles/style.css');
 $i = null;
 $v = null;
 
+$v = get_routes();
+
 echo '<pre>';
 echo NL . NL;
 	echo 'Value is set: ' . ($v ? 'Yes' : 'no');

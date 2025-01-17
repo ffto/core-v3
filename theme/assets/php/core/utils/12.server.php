@@ -171,14 +171,14 @@ add_action('site/init', function ($set){
 });
 
 function ffto_init_cron_files (){
-	ffto_cache_files('cron', '@theme/+cron/*.php', [
+	ffto_cache_files('cron', '@theme/+cron', [
 		'format'=>function ($file){
-			return isset($file['duration']) ? $file : false;
+			return isset($file['meta']['duration']) ? $file: false;
 		},
 		'callback'=>function ($file){
-			ffto_add_cron_job($file['name'], $file['duration'], function () use ($file){
+			ffto_add_cron_job($file['name'], $file['meta']['duration'], function () use ($file){
 				try{
-					include $file['path'];
+					include $file['filepath'];
 				}catch (Exception $e){
 					// TODO log in the error that something went wrong
 				}

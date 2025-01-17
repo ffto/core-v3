@@ -5395,7 +5395,7 @@ FFTO.Utils.add('nbr', function (NBR, CONSTS, RE, _){
 });
 FFTO.Utils.add('math', function (MATH, CONSTS, RE, _){
     this.clamp = function (nbr, min, max, priority){
-		priority = priority || 'min';
+		priority = priority || 'max';
 
 		if (min === undefined && max === undefined){
 			min = 0;
@@ -5412,10 +5412,10 @@ FFTO.Utils.add('math', function (MATH, CONSTS, RE, _){
 			|| !isFinite(nbr)
 		) return priority === 'max' ? max : min;
 
-		if (priority === 'max'){
-			return Math.min(Math.max(min, nbr), max);
-		}else{
+		if (priority === 'min'){
 			return Math.max(Math.min(max, nbr), min);
+		}else{
+			return Math.min(Math.max(min, nbr), max);
 		}
     };
 
@@ -6371,6 +6371,27 @@ FFTO.Utils.add('arr', function (ARR, CONSTS, RE, _){
 		return removed;
 	};
 
+	this.toggle = function (arr, value, args){
+		if (_.is.bool(args)){
+			args = {'single':args};
+		}
+
+		args        = args || {};
+		args.single = 'single' in args ? args.single : false;
+
+		arr = _.$arr(arr);
+
+		var index = arr.indexOf(value);
+		if (args.single){
+			arr = ~index ? [] : [value];
+		}else{
+			if (~index)	arr.splice(index, 1);
+			else		arr.push(value);
+		}
+
+		return arr;
+	};
+
 	this.remove.all = function (arr, items, args){
 		args     = args || {};
 		args.all = true;
@@ -6712,14 +6733,14 @@ FFTO.Utils.add('dt', function (DT, CONSTS, RE, _){
     };
 
     // [ ] Add returned values, is_today, .... like in the PHP code
-    this.get = function (dt, args, format){
+    this.get = function (dt, args, $return){
         if (_.is.obj(dt, true)){
             args = dt;
             dt   = 'now';
         }
 
         if (_.is.str(args)){
-            args = {'update':args};
+            args = {'format':args};
         }
 
         args 			= args || {};
@@ -6727,8 +6748,9 @@ FFTO.Utils.add('dt', function (DT, CONSTS, RE, _){
 		args.update 	= 'update' in args ? args.update : null;
         args.time 		= 'time' in args ? args.time : true;            // include time or not, or set it
         args.clone      = 'clone' in args ? args.clone : true;          // by default, always create a new date object
-		args.format 	= 'format' in args ? args.format : format;
+		args.format 	= 'format' in args ? args.format : null;
 		args.lang 		= 'lang' in args ? args.lang : 'EN';
+        args.utc        = 'utc' in args ? args.utc : false;
 
         var is_string = _.is.str(dt);
 
@@ -6852,6 +6874,11 @@ FFTO.Utils.add('dt', function (DT, CONSTS, RE, _){
             }
         }
 
+        // Convert to UTC
+        if (args.utc){
+            dt = Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate(), dt.getUTCHours(), dt.getUTCMinutes() - dt.getTimezoneOffset(), dt.getUTCSeconds(), dt.getUTCMilliseconds());    
+        }
+
         // Format date
         if (args.format){
             var format = args.format;
@@ -6962,7 +6989,7 @@ FFTO.Utils.add('dt', function (DT, CONSTS, RE, _){
 
         return dt;
     };
-
+    
     this.is = function (a, b, args){
         if (!a || !b) return false;
 
@@ -6982,6 +7009,41 @@ FFTO.Utils.add('dt', function (DT, CONSTS, RE, _){
         b = this.get(b, {'time':args.time});
         
 		return a.getTime() === b.getTime();
+    };
+
+    this.diff = function (a, b, args){
+        a = _.dt.get(a, {'utc':true}) || 0;
+        b = _.dt.get(b, {'utc':true}) || 0;
+        
+		var diff = b - a;
+		var sec  = (diff / 1000);
+		var min  = (sec / DT.MINUTE_IN_SECONDS);
+		var h    = (sec / DT.HOUR_IN_SECONDS);
+		var d    = (sec / DT.DAY_IN_SECONDS);
+		var w    = (sec / DT.WEEK_IN_SECONDS);
+		var m    = (sec / DT.MONTH_IN_SECONDS);
+		var y    = (sec / DT.YEAR_IN_SECONDS);
+
+        return {
+			'milliseconds'	: diff % 1000,
+			'seconds'       : Math.floor(sec % 60),
+			'minutes'       : Math.floor(min % 60),
+			'hours'         : Math.floor(h % 24),
+			'days'          : Math.floor(d % 30),
+			'weeks'         : Math.floor(w % 52),
+			'months'        : Math.floor(m % 12),
+			'years'         : Math.floor(y % 365),
+			'total'			: {
+				'milliseconds'	: diff,
+				'seconds'       : sec,
+				'minutes'       : min,
+				'hours'         : h,
+				'weeks'         : w,
+				'days'          : d,
+				'months'        : m,
+				'years'         : y,
+			}
+		};
     };
 
     this.clone = function (dt){
@@ -11763,6 +11825,23 @@ FFTO.Utils.add('dom.event', function (DOM, CONSTS, RE, _, $win, $doc){
 		_.dom.load(function (){ _change({'type':'load'}); });
 		_.dom.on(window, 'resize', _change);
 		
+		// Added extra objeserver, to 
+		if (window.ResizeObserver){
+			var observer = new ResizeObserver(nodes => {
+				for (var i in nodes){
+					callback([{
+						'type'    : 'content',
+						'target'  : nodes[i].target,
+						'isResize': true,
+						'isLoad'  : false,
+					}]);
+				}
+			});
+			observer.observe(document.body);
+		}else{
+			// TODO maybe do a "resize" with interval
+		}
+
 		_change({'type':'now'});
 	});
 
@@ -11778,7 +11857,6 @@ FFTO.Utils.add('dom.event', function (DOM, CONSTS, RE, _, $win, $doc){
 		_.dom.on(window, 'scroll', _change);
 		_change({'type':'now'});
 	});
-
 
 	this.custom('page-change', function (el, args, callback){
 		function _change (e){

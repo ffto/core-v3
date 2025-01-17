@@ -1,1 +1,6 @@
+<?php 
+/**
+ * layout : false
+ **/
+?>
 POP

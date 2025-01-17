@@ -1454,13 +1454,13 @@ dialog:not([open]) {
   font-weight: normal;
   font-style: normal;
 }
-.box, .btn, .field-dropdown--trigger, button:not([unstyled]) {
+.box, .btn, button:not([unstyled]) {
   border: 1px solid #181818;
 }
-.box, .btn, .field-dropdown--trigger, button:not([unstyled]) {
+.box, .btn, button:not([unstyled]) {
   font-weight: 400;
 }
-.box, .btn, .field-dropdown--trigger, button:not([unstyled]) {
+.box, .btn, button:not([unstyled]) {
   display: inline-flex;
   background: none;
   align-items: center;
@@ -1489,18 +1489,18 @@ dialog:not([open]) {
   }
 }
 
-.btn, .field-dropdown--trigger, button:not([unstyled]) {
+.btn, button:not([unstyled]) {
   display: inline-flex;
   align-items: center;
   position: relative;
   cursor: pointer;
 }
-.btn path, .field-dropdown--trigger path, button:not([unstyled]) path {
+.btn path, button:not([unstyled]) path {
   stroke: currentColor;
   fill: transparent;
 }
 @media (hover: hover) {
-  .btn:hover, .field-dropdown--trigger:hover, button:hover:not([unstyled]) {
+  .btn:hover, button:hover:not([unstyled]) {
     background-color: #181818;
     color: #FFFFFF;
   }
@@ -1597,8 +1597,10 @@ Layout
   text-transform: uppercase;
   margin: 1.5em 0 4em;
   width: 458px;
-  border: 1px solid #181818;
   box-shadow: -2px 5px 8px 0px #000;
+}
+.site-splash__middle {
+  border: 1px solid #181818;
 }
 .site-head {
   padding: 0.1em var(--column-padding, 0.2rem);
@@ -1625,8 +1627,10 @@ Layout
   flex: 1 1 auto;
 }
 .site-main > section {
-  border: 1px solid #181818;
   box-shadow: -2px 5px 8px 0px #000;
+}
+.site-main > section {
+  border: 1px solid #181818;
 }
 .site-main > section > h1 {
   padding: 0 0.2rem 2.15rem;
@@ -1667,131 +1671,6 @@ Layout
 /* ----------------------------------------------------------------––––––-------
 Items 
 ----------------------------------------------------------------––––––------- */
-.field-dropdown--knob {
-  margin-left: 0;
-}
-.field-dropdown--knob path {
-  stroke: currentColor;
-  fill: transparent;
-}
-.field-dropdown .icn {
-  vertical-align: middle;
-}
-.field-dropdown--overlay {
-  border: none;
-  top: -2px;
-  left: -0.2em;
-  padding: 1.05em 5px 0 3px;
-  z-index: 1;
-  min-width: 350px;
-  border-top: 1px solid #181818;
-  box-shadow: -2px 5px 8px 0px #000;
-}
-.field-dropdown--options {
-  width: auto;
-}
-.field-dropdown--options::-webkit-scrollbar {
-  height: calc(var(--scrollbar-size, 5px) + var(--scrollbar-padding, 3px) * 2);
-  width: calc(var(--scrollbar-size, 5px) + var(--scrollbar-padding, 3px) * 2);
-  border: var(--scrollbar-track-border);
-}
-.field-dropdown--options::-webkit-scrollbar-track {
-  background-color: var(--scrollbar-background, rgba(0, 0, 0, 0));
-  border: var(--scrollbar-border);
-}
-.field-dropdown--options::-webkit-scrollbar-thumb {
-  border: var(--scrollbar-padding, 3px) solid rgba(0, 0, 0, 0);
-  border-radius: var(--scrollbar-radius, var(--scrollbar-size, 5px));
-  background-color: var(--scrollbar-color, black);
-  background-clip: padding-box;
-  box-shadow: inset 0 0 0 1px var(--scrollbar-border, transparent);
-}
-html.is-firefox .field-dropdown--options {
-  scrollbar-width: calc(var(--scrollbar-size, 5px) + var(--scrollbar-padding, 3px) * 2);
-  scrollbar-color: var(--scrollbar-color, black) var(--scrollbar-background, rgba(0, 0, 0, 0));
-}
-.field-dropdown--options {
-  box-sizing: content-box;
-  background-color: rgba(0, 0, 0, 0);
-  padding-right: 2.5px;
-  margin-right: -2.5px;
-}
-.field-dropdown--options li {
-  margin-bottom: -1px;
-  white-space: nowrap;
-  border-top: 1px solid #181818;
-}
-@media (hover: hover) {
-  .field-dropdown--options li:hover {
-    background-color: black;
-    color: white;
-    --color: white;
-  }
-  .field-dropdown--options li.is-selected {
-    background-color: black;
-    color: white;
-    --color: white;
-  }
-}
-.field-dropdown--options span {
-  display: block;
-}
-.field-dropdown.is-open .field-dropdown--trigger {
-  z-index: 2;
-}
-.field-dropdown.is-open .field-dropdown--knob {
-  rotate: 180deg;
-}
-
-.item-field-datepicker {
-  position: relative;
-}
-.item-field-datepicker__overlay {
-  position: absolute;
-  border: none;
-  border-top: 1px solid #181818;
-  box-shadow: -2px 5px 8px 0px #000;
-  background-color: #FFFFFF;
-  top: -2px;
-  left: -0.2em;
-  padding: 1.05em 5px 0 3px;
-  z-index: 1;
-  min-width: 285px;
-}
-.item-field-datepicker:focus-within .item-field-datepicker__trigger {
-  z-index: 2;
-}
-.item-field-datepicker:focus-within .item-field-datepicker__knob {
-  rotate: 180deg;
-}
-
-.item-list-emails__link {
-  text-decoration: none;
-  display: flex;
-}
-.item-list-emails__addresses {
-  display: inline-block;
-  text-overflow: ellipsis;
-  text-overflow: ellipsis "...";
-  overflow-x: hidden;
-  overflow-y: hidden;
-  white-space: nowrap;
-  max-width: 100%;
-}
-.item-list-emails__thread-count {
-  margin-left: 1em;
-}
-.item-list-emails__subject {
-  display: inline-block;
-  text-overflow: ellipsis;
-  text-overflow: ellipsis "...";
-  overflow-x: hidden;
-  overflow-y: hidden;
-  white-space: nowrap;
-  max-width: 100%;
-  vertical-align: middle;
-}
-
 /* ----------------------------------------------------------------––––––-------
 Pages 
 ----------------------------------------------------------------––––––------- */
@@ -1847,9 +1726,11 @@ Pages
 }
 @media (hover: hover) {
   .page-home tr[href]:hover {
+    box-shadow: -2px 5px 8px 0px #000;
+  }
+  .page-home tr[href]:hover {
     border-top: 1px solid #181818;
     border-bottom: 1px solid #181818;
-    box-shadow: -2px 5px 8px 0px #000;
   }
 }
 .page-home td {
@@ -1858,8 +1739,10 @@ Pages
 }
 
 .page-email__wrap {
-  border: 1px solid #181818;
   box-shadow: -2px 5px 8px 0px #000;
+}
+.page-email__wrap {
+  border: 1px solid #181818;
 }
 .page-email__subject {
   background: none !important;
@@ -1948,13 +1831,15 @@ Pages
 }
 .page-email__image {
   padding: 0.7em;
-  border: 1px solid #181818;
 }
 .page-email__image {
   display: inline-block;
   width: 100px;
   height: 100px;
   overflow: hidden;
+}
+.page-email__image {
+  border: 1px solid #181818;
 }
 .page-email__image img {
   height: 100%;

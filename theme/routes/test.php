@@ -1,6 +1,7 @@
 <?php 
 /**
  * class : &--ok Coolio &&-nooo
+ * skip : true
  **/
 ?>
 

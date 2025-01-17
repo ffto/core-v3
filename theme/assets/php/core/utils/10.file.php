@@ -201,27 +201,53 @@ function ffto_include_file ($path, $vars=[]){
  * 	- 'callback' [null] call a function on each cached files
  * @return array
  */
-function ffto_cache_files ($key, $path, $args=null){
-	$args = _args($args, [
-		'format'   => null,
-		'callback' => null,
-		'refresh'  => false,
-	], 'callback');
-
-	$cache_path = "@cache/files/{$key}.json";
-	$files      = ffto_get_file($cache_path);
-
-	if ($files === null || $args['refresh'] || ffto_is_new_version() || ffto_is_dev()){
-		$files = ffto_get_files($path, ['meta'=>true, 'format'=>function ($v) use ($args){
-			$file = array_merge([
-				'name' => $v['name'],
-				'path' => $v['path'],
-			], $v['meta']);
-			return _apply($args['format'], $file);
-		}]);
-		ffto_set_file($cache_path, $files);
+function ffto_cache_files ($key, $dir, $args=null, $callback=null){
+	if (ffto_is_callback($args)){
+		$args = ['callback'=>$args];
 	}
 
+	$args = _args($args, [
+		'path'     => '**/*.php',
+		'exclude'  => '/^_|copy/',
+		'format'   => null,
+		'callback' => $callback,
+		'refresh'  => false,
+	], 'path');
+
+	$cache_path = $key ? "@cache/files/{$key}.json" : null;
+	$files      = $cache_path ? ffto_get_file($cache_path) : null;
+
+	if ($files === null || $args['refresh'] || ffto_is_new_version() || ffto_is_dev()){
+		$dir   = ffto_to_path($dir);
+		$paths = ffto_to_glob("{$dir}/{$args['path']}");
+		$files = [];
+
+		foreach ($paths as $path){
+			// skipping files
+			if (
+				!is_file($path)
+				|| ($args['exclude'] && ffto_is_like($path, $args['exclude'])) 
+			){
+				continue;
+			}
+
+			$meta = ffto_get_file_meta($path);
+			$name = pathinfo($path, PATHINFO_FILENAME);
+			$file = [
+				'name'     => isset($meta['name']) ? $meta['name'] : $name,
+				'path'     => str_replace($dir, '/', $path),                  // relative path to the $dir
+				'filepath' => $path,                                          // fullpath
+				'meta'     => $meta
+			];
+			$file = _apply($args['format'], $file, $meta);
+
+			if ($file) $files[] = $file;
+		}
+		
+		$cache_path && ffto_set_file($cache_path, $files);
+	}
+
+	// Call all the files
 	$files = is_array($files) ? $files : [];
 	foreach ($files as $file){
 		_call($args['callback'], $file);

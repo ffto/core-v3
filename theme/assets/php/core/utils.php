@@ -762,22 +762,23 @@ function _args ($value, $defaults=null, $args=null, $filter=null){
  * 		- other: use this string as the separator
  * @return string
  */
-function _slug ($text, $args=null){
+function _slug ($text, $args=null, $keep_dollar=false){
 	if (!$text) return null;
 
 	$args = _args($args, array(
 		'return'   => '',
 		'fallback' => '',
+		'dollar'   => $keep_dollar,
 	), 'return');
 
 	$text = str_replace(["’",'"',"'"], '', $text);                                                       // remove quotes
 	$text = html_entity_decode($text, ENT_COMPAT | ENT_HTML401, 'UTF-8');                                // make sure it's utf-8
 	$text = preg_replace_callback('/[A-Z]+/', function ($m){ return " " . strtolower($m[0]); }, $text);  // every uppercase will be turned into a lowercase with a space before
-	$text = preg_replace('~[^\\pL\d]+~u', '-', $text);                                                   // replace non letter or digits by -
+	$text = preg_replace(($args['dollar'] ? '~[^\\pL\d\$]+~u' : '~[^\\pL\d]+~u'), '-', $text);                                                 // replace non letter or digits by -
 	$text = trim($text, '-');                                                                            // trim
 	$text = @iconv('utf-8', 'us-ascii//TRANSLIT', $text);                                                // transliterate (remove accents)
 	$text = strtolower($text);                                                                           // lowercase
-	$text = preg_replace('~[^-\w]+~', '', $text);                                                        // remove unwanted characters
+	$text = preg_replace(($args['dollar'] ? '~[^-\w\$]+~' : '~[^-\w]+~'), '', $text);                                                       // remove unwanted characters
 	
 	// type of returned formats
 	$r = $args['return'];

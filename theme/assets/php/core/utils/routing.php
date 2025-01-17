@@ -57,23 +57,24 @@ function ffto_get_routes ($dir='@routes', $args=null){
 
 			// Create a RegExp for mathing the URL
 			$params = [];
-			$match  = '/^' . preg_replace_callback('/\/([^\/]+)/', function ($m) use (&$params){
-				$var = _match($m[1], '/(\[(?<key>.+?)(?<list>\.{3})?(?<optional>\?)?\])/', true);
+			$match  = '/^' . preg_replace_callback('/\/([^\/]+)?/', function ($m) use (&$params){
+				$m 	 = isset($m[1]) ? $m[1] : '';
+				$var = $m ? _match($m, '/(\[(?<key>.+?)(?<list>\.{3})?(?<optional>\?)?\])/', true) : null;
 
 				// There's no variable, return the text with an escaped slash
 				if (!$var){
-					return '\/' . $m[1];
+					return '\/' . $m;
 				}
 
-				// $key         = preg_replace('/([+-_])/', '\\\$1', $var['key']);
 				$key         = $var['key'];	// the keys can only be 
-				$is_list     = _get($var, 'list')     !== null;
-				$is_optional = _get($var, 'optional') !== null;
+				$is_list     = !!_get($var, 'list');
+				$is_optional = !!_get($var, 'optional');
+
+				// TODO Maybe the keys could have a default value from the meta data
 
 				$params[] = [
-					'key'      => $key,
-					'list'     => $is_list,
-					'optional' => $is_optional,
+					'key'  => $key,
+					'list' => $is_list,
 				];
 
 				return '(?:\/'.($is_list ? '(.+)' : '([^\/]+)?').')' . ($is_optional ? '?' : '');
@@ -110,29 +111,38 @@ function ffto_get_route ($path, $args=null, $routes=null){
 	foreach ($routes as $r){
 		// will match the last one
 		// should match the last items (since the one with vars are before)
+
 		if (!preg_match($r['match'], $path)) continue;
 		$route = $r;
 	}
 
 	// Return it all
 	if ($route){
-		$match  = _match($path, $route['match'], true);
+		$match  = _match($path, $route['match'], true);		
 		$values = [];
 		foreach ($route['params'] as $i => $param){
 			$key   = $param['key'];
 			$value = isset($match[$i]) ? $match[$i] : null;
+			
+			// Check if there's a default in the meta (with a "$" prefix)
+			if ($value === null){
+				$value = _get($route, 'meta/$'.$key);
+			}
 
 			if ($param['list']){
 				$value = explode('/', $value);
 				$value = array_map(function ($v){ return _value($v); }, $value);
 			}else{
-				$value = ffto_to_value($value);
+				$value = _value($value);
 			}
-
+			
 			$values[$key] = $value;
 		}
 
 		$route['values'] = $values;
+
+		// [ ] Maybe here... should I try getting the data of the file?
+		// [ ] When dealing with a current dir "./..." path, make sure it's based on the current FILE
 	}
 
 	return $route;

@@ -69,7 +69,7 @@ function ffto_get_file_meta ($path, $args=null){
 	
 	$meta = [];
 	foreach ($_meta as $i => $v){
-		$i        = $is_key ? _slug($i, '_') : $i;
+		$i        = $is_key ? _slug($i, '_', true) : $i;	// Slugify but keep the dollar sign
 		$v        = $is_value ? _slug($v, '_') : $v;
 		$meta[$i] = _value($v);
 	}	

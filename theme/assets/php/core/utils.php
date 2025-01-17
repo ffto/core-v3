@@ -1225,9 +1225,10 @@ function _string ($v, $args=null, $join=', '){
 		// Try converting the output to a php array
 		if ($args['pretty'] === 'php'){
 			$v = strtr($v, [
-				'": ' => '" => ',
-				"{\n" => "[\n",
-				"\/"  => '/'
+				'": ' 	=> '" => ',
+				"{\n" 	=> "[\n",
+				"\/"  	=> '/',
+				"\\\\"  => '\\',
 			]);
 			$v = preg_replace('/\}(,|\n|$)/', ']$1', $v);
 		}
@@ -4291,6 +4292,9 @@ function ffto_to_url ($url=null, $args=null, $query=true){
 	$port      = $url['port'] && ($args['port'] || !in_array($url['port'], [80,443])) ? ":{$url['port']}" : '';
 	$query	   = is_array($query) ? http_build_query($query) : '';
 	
+	// Make sure the path is updated
+	$url['path'] = "/{$path}";
+
 	// slashes
 	$ext 	   = $url['path'] ? pathinfo($url['path'], PATHINFO_EXTENSION) : null;
 	$end_slash = (!$ext && $args['slash'] ? '/' : '');

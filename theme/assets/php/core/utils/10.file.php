@@ -195,10 +195,14 @@ function ffto_include_file ($path, $vars=[]){
  * Parse and cache files in the @cache/files folder so they can be accessed faster.
  *
  * @param string $key
- * @param string $path
+ * @param string $dir	
  * @param mixed $args
+ * 	- 'path' ['**\/*.php'] Default path for files to match
+ * 	- 'exclude' ['/^_|copy/'] Files path to exclude
  * 	- 'format' [null] format the cache file data
  * 	- 'callback' [null] call a function on each cached files
+ * 	- 'refresh' [false] Refresh the cached files
+ * @param string $callback	
  * @return array
  */
 function ffto_cache_files ($key, $dir, $args=null, $callback=null){
@@ -243,6 +247,8 @@ function ffto_cache_files ($key, $dir, $args=null, $callback=null){
 
 			if ($file) $files[] = $file;
 		}
+
+
 		
 		$cache_path && ffto_set_file($cache_path, $files);
 	}

@@ -32,7 +32,10 @@ echo ffto_to_asset('@styles/style.css');
 $i = null;
 $v = null;
 
-$v = get_routes();
+$r = ffto_get_routes();
+$v = $r;
+$u = ffto_to_url(null, 'slash=0&return=path');
+$v = ffto_get_route($u, null, $r);
 
 echo '<pre>';
 echo NL . NL;

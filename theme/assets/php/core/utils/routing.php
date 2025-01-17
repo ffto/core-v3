@@ -33,6 +33,8 @@ function ffto_get_routes ($dir='@routes', $args=null){
 			// [ ] Should I deal with "*" in the path
 			// [ ] Add option to alter the path to match, maybe calling the meta key = route
 			// [ ] Option to whitelist, blacklist, add "need login" ...
+			// [ ] add option to limit to only GET/POST/PUT/PATCH/DELETE/OPTIONS/HEAD
+			// [ ] Be able to deal with "server-event", "long-pooling", ....
 
 			// Deal with special meta
 			// [x] skip/hidden

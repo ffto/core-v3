@@ -56,19 +56,23 @@ function ffto_get_routes ($dir='@routes', $args=null){
 			$path = str_replace('...', '@@@', $path);
 			$path = str_replace('.', '/', $path);
 			$path = str_replace('@@@', '...', $path);
+			$path = str_replace('{', '[', $path);
+			$path = str_replace('}', ']', $path);
+			$path = str_replace('*', '.+', $path);
 
 			// Create a RegExp for mathing the URL
 			$params = [];
 			$match  = '/^' . preg_replace_callback('/\/([^\/]+)?/', function ($m) use (&$params){
-				$m 	 = isset($m[1]) ? $m[1] : '';
+				$m   = isset($m[1]) ? $m[1] : '';
 				$var = $m ? _match($m, '/(\[(?<key>.+?)(?<list>\.{3})?(?<optional>\?)?\])/', true) : null;
+				$key = $var ? $var['key'] : $m;
+				$key = preg_replace('/([+-_])/', '\\\$1', $key);
 
 				// There's no variable, return the text with an escaped slash
 				if (!$var){
 					return '\/' . $m;
 				}
 
-				$key         = $var['key'];	// the keys can only be 
 				$is_list     = !!_get($var, 'list');
 				$is_optional = !!_get($var, 'optional');
 

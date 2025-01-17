@@ -12,7 +12,7 @@
 // [ ] transform all css class to BEM type
 // [ ] Add a "track access" globally with output code
 // [ ] Add a "track server access" globally with output code
-
+// [ ] In Storage class, add a way for Models to be either linked to the Default Storage, another source OR a custom source in itself
 
 // Files migrated
 // [ ]	classes

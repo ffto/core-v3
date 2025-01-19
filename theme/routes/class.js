@@ -11,8 +11,8 @@ Component(function Camera (){
 	this.$head = Query();
 
 	// init --------------------------------------------------------------------
+	// these should also be available as get/set right away, compared to keys in "$" instead, $ would be for cached values instead
 	this.data = {
-		
 	};
 	
 	this.init = function (){

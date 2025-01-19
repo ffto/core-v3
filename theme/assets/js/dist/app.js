@@ -850,7 +850,7 @@ FFTO.Utils = window.utils = (new function ($win, $doc){
 		}
 
         if (_.is.str(path)){
-            path = path.split('.');
+            path = path.split('.');	// TODO, replace "." for "/" instead
         }else{
             path = _.is.arr(path) ? path : [path];
         }
@@ -8319,15 +8319,17 @@ FFTO.Utils.add('dom', function (DOM, CONSTS, RE, _, $win, $doc){
 					cache[i]   = v;
 					hasChanged = true;
 
+					var k = _.toSlug(i);
+
 					if (_.is.not(v)){
-						el.removeAttribute(i);
+						el.removeAttribute(k);
 					}else{
 						v = v === true ? '' : v;
 
 						if (i in DOM.SVG_NAMESPACES){
-							el.setAttributeNS(DOM.SVG_NAMESPACES[i], i, v);
+							el.setAttributeNS(DOM.SVG_NAMESPACES[i], k, v);
 						}else{
-							el.setAttribute(i, v);
+							el.setAttribute(k, v);
 						}
 					}
 				};
@@ -12129,7 +12131,7 @@ FFTO.Utils.add('dom.css', function (DOM, CONSTS, RE, _, $win, $doc){
             // ready state
             this.cache();
             this.render();
-            this.ready = true;
+            this.ready = true;            
         },
         'cache':function (){
             // empty
@@ -14595,6 +14597,8 @@ Module(function Element (_){
 
         // Add the genereal class
         this.addClass($el, '&');
+
+        this.$super();
         
         return [$el, data];
     };

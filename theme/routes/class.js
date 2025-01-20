@@ -49,6 +49,7 @@ Api(function (){
 
 // });
 
+// uses [is], [el], [name], [...]
 Component({
 	'singleton': true,
 	'path'     : 'path/to/save/camera',   // to Save in a certain path
@@ -61,11 +62,12 @@ Component({
 	this.$$path      = true;
 
 	// Node tag to use
-	this.$$tag      = 'bob-burger';                    // Create a Class for creating <bob-burger> HTMLElement
+	this.$$element  = 'div';                           // default tag, left to null for nothing
 	this.$$elements = 'elements, node, node2, node3';
+	this.$$custom   = 'bob-burger';                    // Create a Class for creating <bob-burger> custom element HTMLElement
 
 	// Query element has a $before
-	this.$el   = Query();
+	this.$el = Query();
 
 	// init --------------------------------------------------------------------
 	// these should also be available as get/set right away, compared to keys in "$" instead, $ would be for cached values instead
@@ -112,4 +114,16 @@ Component({
 	this.close = function (){
 		
 	};	
+});
+
+// new Drawing();
+
+// For drawing
+Drawing.Shape(function (){
+
+});
+
+// For Special view stuff (similar to Vuejs, Svelte, ...)
+View('<node-tag>', function NodeTag (){
+
 });

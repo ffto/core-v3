@@ -74,13 +74,11 @@ function ffto_set_var ($key, $value=null, $args=null){
  * @param mixed $fallback 
  * @return mixed
  */
-function ffto_get_var ($key=null, $fallback=null){
+function ffto_get_var ($key=null, $fallback=null){	
 	$vars = _global('$view_vars', []);
-
 	if ($key){
 		return array_key_exists($key, $vars) ? $vars[$key] : $fallback;
     }
-
 	return $vars;
 }
 

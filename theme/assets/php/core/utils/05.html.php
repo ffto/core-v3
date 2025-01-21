@@ -1746,7 +1746,6 @@ function ffto_to_view ($path, $vars=null, $args=null){
 		$_meta = ffto_get_file_meta($path);   // get the file comment meta and add them first
 		$meta  = array_merge($meta, $_meta);
 		ffto_set_meta($meta, null, true);
-
 		$content = ffto_include_file($path, $vars);
 	}else if ($fn){
 		ffto_set_meta($meta, null, true);

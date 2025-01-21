@@ -76,7 +76,7 @@ function ffto_get_file_meta ($path, $args=null){
 
 	return $meta;
 }
-
+ 
 /**
  * Recursivly delete a file or directory and it's children.
  *
@@ -158,15 +158,18 @@ function ffto_move_file ($from, $to, $args=''){
  *
  * @param mixed $path 
  * @param array $vars Variables to pass so the file ca access it
+ * @param boolean $json Return a JSON array with default values: [message, status, success]
  * @return mixed
  */
-function ffto_include_file ($path, $vars=[]){
+function ffto_include_file ($path, $vars=null, $json=false){
 	_start();
 
 	$old_vars = ffto_get_var();
 
-	extract($vars);		 // the variables will be available at the root of the inluded file
-	ffto_set_var($vars); // the variables will be available with the use of {@see ffto_get_var()} and it's shortcut {@see _var()}
+	if (is_array($vars)){
+		extract($vars);		 // the variables will be available at the root of the inluded file
+		ffto_set_var($vars); // the variables will be available with the use of {@see ffto_get_var()} and it's shortcut {@see _var()}
+	}
 	
 	$response = include($path);
 	$content  = _end();
@@ -175,23 +178,30 @@ function ffto_include_file ($path, $vars=[]){
 	ffto_set_var($old_vars, null, true);
 
 	// return a JSON message
-	if ($response){
+	if ($response && $json){
 		if (is_string($response)){
 			$content = ['message'=>$response];
 		// return a HTTP Success value
 		}else if (is_bool($response)){
-			$content = ['success'=>$response];	
+			$content = ['success'=>$response, 'status'=>($response ? 200 : 400)];	
 		// return a HTTP Status code
 		}else if (is_numeric($response) && $response >= 100){
-			$content = ['status'=>$response];
+			$content = ['success'=>($response >= 400 ? false : true), 'status'=>$response];
 		// return data
 		}else if (is_array($response)){
 			$content = $response;
 		}
 
-		// TODO the reponse (if array), needs to return default so message, status and success
-	}
+		$content = array_merge([
+			'success' => true,
+			'status'  => 200,
+			'message' => 'Success',
+		], $content);
 
+		// TODO the reponse (if array), needs to return default so message, status and success
+	}else if ($response){
+		$content = $response;
+	}
 
 	return $content;
 }

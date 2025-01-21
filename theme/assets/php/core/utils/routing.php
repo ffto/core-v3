@@ -57,7 +57,9 @@ function ffto_to_route ($path, $args=null){
 			$meta = ffto_get_file_meta($filepath);
 		}
 
-		$render = function () use ($filepath, $meta){ return ffto_include_file($filepath, $meta); };
+		$render = function ($data=null) use ($filepath){ 
+			return ffto_include_file($filepath, $data, true); 
+		};
 	}else if ($content = $args['content']){		
 		if (ffto_is_callback($content)){
 			$render = $content;
@@ -158,13 +160,14 @@ function ffto_get_routes ($dir=null, $args=null){
 	return $routes;
 }
 
-function ffto_set_routes (){
 
-}
+// function ffto_set_routes (){
 
-function ffto_add_route ($path, $args=null){
-	// Routes can be a filepath, a function, just content
-}
+// }
+
+// function ffto_add_route ($path, $args=null){
+// 	// Routes can be a filepath, a function, just content
+// }
 
 function ffto_get_route ($path=null, $args=null, $routes=null){
 	if (is_bool($path)){
@@ -178,6 +181,7 @@ function ffto_get_route ($path=null, $args=null, $routes=null){
 	}
 
 	$args = _args($args, [
+		'data'   => null,
 		'routes' => $routes,
 		'render' => false,
 	], 'render');
@@ -195,6 +199,7 @@ function ffto_get_route ($path=null, $args=null, $routes=null){
 	if ($route){
 		$match  = _match($path, $route['match'], true);		
 		$values = [];
+
 		foreach ($route['params'] as $i => $param){
 			$key   = $param['key'];
 			$value = isset($match[$i]) ? $match[$i] : null;
@@ -218,10 +223,12 @@ function ffto_get_route ($path=null, $args=null, $routes=null){
 
 		// Render the route and get the resulting html
 		if ($args['render']){
-			$content          = $route['render']();
+			$content          = $route['render']($values); // _var() can be used to get the $values
 			$route['content'] = $content;
 		}
 
+		// [ ] Deal with layouts, and types of return data (eg.: server-event, long-pooling, logs to save?)
+		// [ ] Add the $values to _request() too, not _query, not _post, but _request includes the _var() too
 		// [ ] Maybe here... should I try getting the data of the file?
 		// [ ] When dealing with a current dir "./..." path, make sure it's based on the current FILE
 	}

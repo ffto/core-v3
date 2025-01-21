@@ -1227,11 +1227,14 @@ function _string ($v, $args=null, $join=', '){
 		if ($args['pretty'] === 'php'){
 			$v = strtr($v, [
 				'": ' 	=> '" => ',
+				'{}'	=> '@__@',
 				"{\n" 	=> "[\n",
 				"\/"  	=> '/',
 				"\\\\"  => '\\',
 			]);
 			$v = preg_replace('/\}(,|\n|$)/', ']$1', $v);
+			// $v = str_replace('@__@', '[]', $v);	// this is an object, probably does not have the proper values in it
+			$v = str_replace('@__@', '(object)[]', $v);	// this is an object, probably does not have the proper values in it
 		}
 	// use a template (if the value is a value value)
 	}else if (ffto_is($v) && $args['template']){
@@ -3214,6 +3217,8 @@ function ffto_get_path ($path, $args=null, $fallback=null){
 	}else if ($args === true){
 		$args = ['return'=>'object'];
 	}
+
+	// [ ] Check now if the path exits and return it
 
 	$args = _args($args, array(
 		'dir'      => _config('abspath'),

@@ -4642,6 +4642,12 @@ $column-screens : (
 ///     @include col-screen(width, 1/2);
 ///     @include col-screen(padding-right, (size:1/2, gap:1);
 @mixin col-screen ($prop, $size, $args:null, $important:false){
+    @if (is-str($args)){
+        $args : ('template':$args);
+    }@else if ($args == true){
+        $args : ('important':true);
+    }
+    
     $args : set($args, 'prefix', '--screen-column');
     @include col($prop, $size, $args, $important);    
 }
@@ -5547,6 +5553,8 @@ $column-screens : (
 /// * --scrollbar-radius
 /// * --scrollbar-background
 ///
+/// var(--scrollbar-pimp) [black] BOB
+/// 
 /// @param {type}       $args.color [black] color of the knob bar
 /// @param {Number}     $args.size [5px] size (width/height) of the knob
 /// @param {Number}     $args.padding [3px] padding around the knob

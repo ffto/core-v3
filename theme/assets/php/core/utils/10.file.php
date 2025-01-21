@@ -175,18 +175,23 @@ function ffto_include_file ($path, $vars=[]){
 	ffto_set_var($old_vars, null, true);
 
 	// return a JSON message
-	if (is_string($response)){
-		$content = ['message'=>$response];
-	// return a HTTP Success value
-	}else if (is_bool($response)){
-		$content = ['success'=>$response];	
-	// return a HTTP Status code
-	}else if (is_numeric($response) && $response >= 100){
-		$content = ['status'=>$response];
-	// return data
-	}else if (is_array($response)){
-		$content = $response;
+	if ($response){
+		if (is_string($response)){
+			$content = ['message'=>$response];
+		// return a HTTP Success value
+		}else if (is_bool($response)){
+			$content = ['success'=>$response];	
+		// return a HTTP Status code
+		}else if (is_numeric($response) && $response >= 100){
+			$content = ['status'=>$response];
+		// return data
+		}else if (is_array($response)){
+			$content = $response;
+		}
+
+		// TODO the reponse (if array), needs to return default so message, status and success
 	}
+
 
 	return $content;
 }

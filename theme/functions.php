@@ -32,6 +32,10 @@ echo ffto_to_asset('@styles/style.css');
 $i = null;
 $v = null;
 
+ffto_add_route('/test', function (){
+	return 45;
+});
+
 $r = ffto_get_routes(true);
 $v = $r;
 $v = ffto_get_route(true);

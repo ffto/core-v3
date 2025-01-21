@@ -157,6 +157,8 @@ function ffto_get_routes ($dir=null, $args=null){
 		_global('$routes', $_routes, true);
 	}
 
+	// [ ] WHEN saving the routes, they would have a key like: "{method} {$path}", like "GET /my-path" or "POST /update-something", if valid for everything, then it's "/only-the-url"
+
 	return $routes;
 }
 
@@ -165,9 +167,12 @@ function ffto_get_routes ($dir=null, $args=null){
 
 // }
 
-// function ffto_add_route ($path, $args=null){
-// 	// Routes can be a filepath, a function, just content
-// }
+function ffto_add_route ($path, $args=null, $save=false){
+	// [ ] if args === string, probably a filepath
+	// [ ] if args === function, it's a callback
+	// [ ] add type of supported method (put, push, get, ....)
+	// Routes can be a filepath, a function, just content
+}
 
 function ffto_get_route ($path=null, $args=null, $routes=null){
 	if (is_bool($path)){

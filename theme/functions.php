@@ -38,7 +38,11 @@ ffto_add_route('/test', function (){
 
 $r = ffto_get_routes(true);
 $v = $r;
-$v = ffto_get_route(true);
+$v = ffto_get_route(null, 'content');
+
+// Route::get('/api', function (){
+// })->post('/update', function (){
+// });
 
 echo '<pre>';
 echo NL . NL;

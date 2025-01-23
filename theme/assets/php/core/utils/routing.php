@@ -7,10 +7,23 @@ function ffto_to_route ($path, $args=null){
 	// [ ] Be able to deal with "server-event", "long-pooling", ....
 	// [ ] Add default 404, layout, ...
 
+	$content  = null;
+	$filepath = null;
+	if (is_string($args)){
+		$filepath = ffto_parse_path($args);
+		$args     = null;
+	}else if (!is_array($args)){
+		$content = $args;
+		$args    = null;
+	}
+
+	// [ ] add type of supported method (put, push, get, ....)
+
 	$args = _args($args, [
-		'name'	   => null,
-		'filepath' => null,
-		'content'  => null,   // a function of a value
+		'name'     => null,
+		'filepath' => $filepath,
+		'content'  => $content,    // a function of a value
+		'method'   => null,
 		'meta'     => [],
 		'layouts'  => null
 	]);
@@ -150,28 +163,45 @@ function ffto_get_routes ($dir=null, $args=null){
 		},
 	]);
 
-	// Save the routes to a global key
-	if ($args['save']){
-		$_routes = _global('$routes', []);
-		$_routes = array_merge($_routes, $routes);
-		_global('$routes', $_routes, true);
-	}
-
 	// [ ] WHEN saving the routes, they would have a key like: "{method} {$path}", like "GET /my-path" or "POST /update-something", if valid for everything, then it's "/only-the-url"
+
+	// Save the routes to a global key
+	$args['save'] && ffto_set_routes($routes, $args['save']);
 
 	return $routes;
 }
 
+function ffto_set_routes ($routes, $args=null){
+	if (ffto_is_obj($routes)){
+		$routes = [$routes];
+	}
 
-// function ffto_set_routes (){
 
-// }
+	$args = _args($args, [
+		'key' => null,
+	], 'key');
 
-function ffto_add_route ($path, $args=null, $save=false){
-	// [ ] if args === string, probably a filepath
-	// [ ] if args === function, it's a callback
-	// [ ] add type of supported method (put, push, get, ....)
-	// Routes can be a filepath, a function, just content
+	if (!is_string($key = $args['key'])){
+		$key = '$routes';
+	}
+	
+	$_routes = _global($key, []);
+	$_routes = array_merge($_routes, $routes);
+	_global($key, $_routes, true);
+
+	return $routes;
+}
+
+function ffto_add_route ($path, $args=null, $save=true){
+	$route = ffto_to_route($path, $args);
+
+	$args = _args($args, [
+		'save' => $save,
+	]);
+
+	$save && ffto_set_routes($route, $save);
+
+	return $route;
 }
 
 function ffto_get_route ($path=null, $args=null, $routes=null){
@@ -188,8 +218,8 @@ function ffto_get_route ($path=null, $args=null, $routes=null){
 	$args = _args($args, [
 		'data'   => null,
 		'routes' => $routes,
-		'render' => false,
-	], 'render');
+		'return' => null,
+	], 'return');
 
 	$routes = $args['routes'] ? $args['routes'] : _global('$routes', []);
 	$route  = null;
@@ -227,9 +257,15 @@ function ffto_get_route ($path=null, $args=null, $routes=null){
 		$route['values'] = $values;
 
 		// Render the route and get the resulting html
-		if ($args['render']){
+		if ($return = $args['return']){
 			$content          = $route['render']($values); // _var() can be used to get the $values
 			$route['content'] = $content;
+		}
+
+		// TODO add $route['html'] for the output
+
+		if (is_string($return)){
+			$route = _get($route, $return);
 		}
 
 		// [ ] Deal with layouts, and types of return data (eg.: server-event, long-pooling, logs to save?)

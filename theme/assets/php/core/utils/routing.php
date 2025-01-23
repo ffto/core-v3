@@ -70,12 +70,14 @@ function ffto_to_route ($path, $args=null){
 			$meta = ffto_get_file_meta($filepath);
 		}
 
-		$render = function ($data=null) use ($filepath){ 
-			return ffto_include_file($filepath, $data, true); 
+		$render = function ($values=null) use ($filepath){ 
+			return ffto_include_file($filepath, $values, true); 
 		};
 	}else if ($content = $args['content']){		
 		if (ffto_is_callback($content)){
-			$render = $content;
+			$render = function ($values) use ($content){
+				return ffto_include_file($content, $values, true); 
+			};
 		}else{
 			$render = function () use ($content){ return $content; };
 		}
@@ -95,18 +97,14 @@ function ffto_to_route ($path, $args=null){
 	];
 }
 
-function ffto_get_routes ($dir=null, $args=null){
+function ffto_to_routes ($dir=null, $args=null){
 	if ($dir === true){
 		$dir  = null;
 		$args = true;
 	}
 
-	if (is_bool($args)){
-		$args = ['save'=>$args];
-	}
-
 	$args = _args($args, [
-		'save'	=> false,
+		
 	]);
 
 	$dir     = $dir ? $dir : '@routes';
@@ -165,17 +163,18 @@ function ffto_get_routes ($dir=null, $args=null){
 
 	// [ ] WHEN saving the routes, they would have a key like: "{method} {$path}", like "GET /my-path" or "POST /update-something", if valid for everything, then it's "/only-the-url"
 
-	// Save the routes to a global key
-	$args['save'] && ffto_set_routes($routes, $args['save']);
-
 	return $routes;
 }
 
 function ffto_set_routes ($routes, $args=null){
+	// Get the default "dir" #routes
+	if ($routes === true){
+		$routes = ffto_to_routes(null, $args);
+	}
+
 	if (ffto_is_obj($routes)){
 		$routes = [$routes];
 	}
-
 
 	$args = _args($args, [
 		'key' => null,

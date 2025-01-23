@@ -32,12 +32,12 @@ echo ffto_to_asset('@styles/style.css');
 $i = null;
 $v = null;
 
-ffto_add_route('/test', function (){
-	return 45;
+ffto_add_route('/test/[bob?]', function (){
+	$v = _var('bob', 888);
+	return $v;
 });
 
-$r = ffto_get_routes(true);
-$v = $r;
+$r = ffto_set_routes(true);
 $v = ffto_get_route(null, 'content');
 
 // Route::get('/api', function (){

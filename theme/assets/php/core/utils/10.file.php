@@ -161,9 +161,7 @@ function ffto_move_file ($from, $to, $args=''){
  * @param boolean $json Return a JSON array with default values: [message, status, success]
  * @return mixed
  */
-function ffto_include_file ($path, $vars=null, $json=false){
-	_start();
-
+function ffto_include_file ($path, $vars=null, $json=false){	
 	$old_vars = ffto_get_var();
 
 	if (is_array($vars)){
@@ -171,7 +169,15 @@ function ffto_include_file ($path, $vars=null, $json=false){
 		ffto_set_var($vars); // the variables will be available with the use of {@see ffto_get_var()} and it's shortcut {@see _var()}
 	}
 	
-	$response = include($path);
+	_start();
+
+	// Can also use a function to return content. Function "ffto_include_content()" isn't used here since the output is a bit different, when $json is used
+	if (ffto_is_callback($path)){
+		$response = _call($path);
+	}else{
+		$response = include($path);
+	}
+
 	$content  = _end();
 	$content  = $content ? $content : '';
 

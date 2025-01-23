@@ -99,7 +99,11 @@ function ffto_get_var ($key=null, $fallback=null){
  * @return mixed
  */
 function ffto_include_content ($callback, $vars=null, $return=null){
-	$vars && ffto_set_var($vars, null, ['attrs'=>false]);
+	$has_vars = $vars !== null;
+	$old_vars = $has_vars ? ffto_get_var() : null;
+
+	// Make sure the vars are set
+	$has_vars && ffto_set_var($vars, null, ['attrs'=>false]);
 		
 	// Make sure the vars is an array
 	if (!ffto_is_list($vars)){
@@ -109,6 +113,9 @@ function ffto_include_content ($callback, $vars=null, $return=null){
 	_start();
 	$response = call_user_func_array($callback, $vars);
 	$html     = _end();
+
+	// Make sure the old vars are set back again
+	$has_vars && ffto_set_var($old_vars, null, true);
 
 	if ($return === 'html'){
 		return $html;
